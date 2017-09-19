@@ -1,0 +1,77 @@
+plugins {
+    // Basic Plugins
+    id 'java-library'
+    id 'groovy'
+    id 'jacoco'
+
+    id 'nebula.project' version '3.4.0'
+
+    // Versioning Plugins
+    id 'nebula.release' version '6.0.2'
+
+    id 'com.jfrog.bintray' version '1.7.3'
+}
+
+group = 'org.slog4j'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compileOnly(
+        [group: 'org.projectlombok', name: 'lombok', version: '1.16.18'],
+    )
+
+    api(
+        [group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'],
+        [group: 'org.joda', name: 'joda-convert', version: '1.9.2'],
+    )
+
+    implementation(
+        [group: 'org.apache.commons', name: 'commons-text', version: '1.1'],
+    )
+
+    testCompile(
+        [group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.12'],
+        [group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4'],
+        [group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'],
+    )
+}
+
+tasks.withType(Test) {
+    // show standard out and standard error of the test JVM(s) on the console
+    testLogging {
+        events 'started', 'passed', 'skipped', 'failed'
+        showStandardStreams = true
+    }
+}
+
+jacoco {
+    // Upgrade ASAP to next JaCoCo version that will likely filter out lombok generated code
+    // see https://github.com/jacoco/jacoco/issues/15
+    toolVersion = '0.7.9'
+}
+
+jacocoTestReport {
+    group = "Reporting"
+    description = "Generate Jacoco coverage reports after running tests."
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+test.finalizedBy jacocoTestReport
+
+bintray {
+    user = "${project.properties.bintrayUser}"
+    key = "${project.properties.bintrayKey}"
+    pkg {
+        repo = 'generic'
+        name = 'slog4j'
+    }
+}
