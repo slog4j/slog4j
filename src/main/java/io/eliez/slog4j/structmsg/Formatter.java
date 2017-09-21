@@ -3,6 +3,7 @@ package io.eliez.slog4j.structmsg;
 import io.eliez.slog4j.LongId;
 import io.eliez.slog4j.ObjectConverter;
 import io.eliez.slog4j.ValueConverter;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.text.StrBuilder;
 
@@ -11,8 +12,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@UtilityClass
 public class Formatter {
-    private static final char   SEP                       = ' ';
+    private static final char   FIELD_SPLIT               = ' ';
     private static final char   OPEN_SUBFIELD             = '[';
     private static final char   CLOSE_SUBFIELD            = ']';
     private static final String NULL_PLACEHOLDER          = "_null_";
@@ -64,14 +66,14 @@ public class Formatter {
     public static String formatTracedEvent(String eventId, long spanId, Object... otherFields) {
         StrBuilder sb = SB_POOL.get();
         appendBareText(sb.append("evt="), eventId)
-                .append(SEP)
+                .append(FIELD_SPLIT)
                 .append("spanId=")
                 .append(LongIdConverter.convert(spanId));
         return appendFields(sb, otherFields).toString();
     }
 
     private static StrBuilder appendBareText(StrBuilder sb, String str) {
-        boolean mustQuote = str.indexOf(SEP) >= 0;
+        boolean mustQuote = str.indexOf(FIELD_SPLIT) >= 0;
         if (mustQuote) {
             sb.append('\'');
         }
@@ -107,7 +109,7 @@ public class Formatter {
             if (field instanceof String) {
                 String key = (String) field;
                 // TODO: verificar key [alphanum]+
-                sb.appendSeparator(SEP).append(key).append('=');
+                sb.appendSeparator(FIELD_SPLIT).append(key).append('=');
                 if ((i + 1) != fields.length) {
                     Object obj = fields[++i];
                     appendValue(sb, obj);
@@ -117,9 +119,9 @@ public class Formatter {
             } else {
                 ObjectConverter objectConverter = OBJECT_CONVERTERS.get(field.getClass());
                 if (objectConverter != null) {
-                    appendFields(sb.appendSeparator(SEP), objectConverter.convert(field));
+                    appendFields(sb.appendSeparator(FIELD_SPLIT), objectConverter.convert(field));
                 } else {
-                    sb.appendSeparator(SEP)
+                    sb.appendSeparator(FIELD_SPLIT)
                             .append(field.getClass().getName())
                             .append('=')
                             .append(field.hashCode());
@@ -159,7 +161,7 @@ public class Formatter {
         int loopIndex = 0;
         for (Map.Entry<?, Object> entry : fields) {
             // TODO: verificar key [alphanum]+
-            sb.appendSeparator(SEP, loopIndex++).append(entry.getKey().toString()).append('=');
+            sb.appendSeparator(FIELD_SPLIT, loopIndex++).append(entry.getKey().toString()).append('=');
             appendValue(sb, entry.getValue());
         }
         return sb;
@@ -199,23 +201,27 @@ public class Formatter {
     }
 
     public static final class ClassMap<T> extends HashMap<Class, T> {
-        @SuppressWarnings("unchecked")
         @Override
         public T get(Object key) {
             assert key != null;
             T value = super.get(key);
             if (value == null) {
-                for (Entry<Class, T> entry : entrySet()) {
-                    if (entry.getKey().isAssignableFrom((Class<?>) key)) {
-                        value = entry.getValue();
-                        break;
-                    }
-                }
+                value = getCompatible(key);
                 if (value != null) {
                     put((Class) key, value);
                 }
             }
             return value;
+        }
+
+        @SuppressWarnings("unchecked")
+        private T getCompatible(Object key) {
+            for (Entry<Class, T> entry : entrySet()) {
+                if (entry.getKey().isAssignableFrom((Class<?>) key)) {
+                    return entry.getValue();
+                }
+            }
+            return null;
         }
     }
 

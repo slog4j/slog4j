@@ -18,9 +18,9 @@ package io.eliez.slog4j;
 public interface SLogger {
     /**
      * Log a structured message at INFO level according to the specified
-     * @param eventId The event
-     * @param spanId
-     * @param fields
+     * @param eventId The event identifier
+     * @param spanId The SPAN identifier
+     * @param fields The optional fields
      */
     void logTracedEvent(String eventId, long spanId, Object... fields);
 
