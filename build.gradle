@@ -6,6 +6,9 @@ plugins {
 
     id 'nebula.project' version '3.4.0'
 
+    // Dependency Management Support Plugins
+    id 'com.github.ben-manes.versions' version '0.15.0'
+
     // Versioning Plugins
     id 'nebula.release' version '6.0.2'
 
@@ -15,6 +18,7 @@ plugins {
 }
 
 apply from: 'gradle/asciidoctor.gradle'
+apply from: 'gradle/ben-manes.versions.gradle'
 
 group = 'io.eliez.slog4j'
 

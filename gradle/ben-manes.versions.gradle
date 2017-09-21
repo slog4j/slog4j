@@ -1,0 +1,15 @@
+
+allprojects {
+    dependencyUpdates.resolutionStrategy = {
+        componentSelection { rules ->
+            rules.all { ComponentSelection selection ->
+                boolean rejected = ["alpha", "beta", "b\\d+", "rc", "cr", "m"].any { qualifier ->
+                    selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
+                }
+                if (rejected) {
+                    selection.reject("Release candidate")
+                }
+            }
+        }
+    }
+}
