@@ -47,8 +47,7 @@ public class Formatter {
     static {
         registerValueConverter(LongId.class, LongIdConverter.SINGLETON);
         registerValueConverter(SocketAddress.class, SocketAddressConverter.SINGLETON);
-//        registerObjectConverter(new TypeReference<Map<String, Object>>() {
-//        }.getType(), MapConverter.SINGLETON);
+        registerObjectConverter(Map.class, MapConverter.SINGLETON);
     }
 
     public static String format(Object... otherFields) {
@@ -220,14 +219,15 @@ public class Formatter {
         }
     }
 
-    public static final class MapConverter implements ObjectConverter<Map<String, Object>> {
+    public static final class MapConverter implements ObjectConverter<Map> {
         static final MapConverter SINGLETON = new MapConverter();
 
         private MapConverter() {
         }
 
         @Override
-        public Collection<Map.Entry<String, Object>> convert(Map<String, Object> map) {
+        @SuppressWarnings("unchecked")
+        public Collection<Map.Entry> convert(Map map) {
             return map.entrySet();
         }
     }

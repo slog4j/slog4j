@@ -30,7 +30,7 @@ class FormatterSpec extends Specification {
     }
 
     @Unroll
-    def 'formatações simples'() {
+    def 'formatações simples: #description'() {
         when:
             def msg = Formatter.format(fields as Object[])
 
@@ -38,12 +38,13 @@ class FormatterSpec extends Specification {
             msg == expectedMessage
 
         where:
-            fields                                                                                                || expectedMessage
-            []                                                                                                    || ''
-            [new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453)]                               || 'clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453'
-            ['obj', 'server4', new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453), 'len', 560] || 'obj=server4 clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453 len=560'
-            ['from', new InetSocketAddress('localhost', 9000)]                                                    || 'from=127.0.0.1:9000'
-            ['obj', 'server4', 'evt', 'dataSent', 'traceId', 'TID 2', 'len', 560]                                 || "obj=server4 evt=dataSent traceId='TID 2' len=560"
+            description         | fields                                                                                                            || expectedMessage
+            'empty fields'      | []                                                                                                                || ''
+            'response object'   | [new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453)]                                           || 'clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453'
+            'kv response kv'    | ['obj', 'server4', new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453), 'len', 560]             || 'obj=server4 clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453 len=560'
+            'InetSocketAddress' | ['from', new InetSocketAddress('localhost', 9000)]                                                                || 'from=127.0.0.1:9000'
+            'kv pairs'          | ['obj', 'server4', 'evt', 'dataSent', 'traceId', 'TID 2', 'len', 560]                                             || "obj=server4 evt=dataSent traceId='TID 2' len=560"
+            'value is map'      | ['parameters', [readerFW: '2.100', readerModel: 'RC700', operation: 'AA', readerSN: 2147490583, csn: 1666649158]] || 'parameters=[readerFW=2.100 readerModel=RC700 operation=AA readerSN=2147490583 csn=1666649158]'
     }
 
 
