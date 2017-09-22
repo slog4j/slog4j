@@ -1,6 +1,6 @@
 plugins {
     // Basic Plugins
-    id 'java'
+    id 'java-library'
     id 'groovy'
     id 'jacoco'
 
@@ -34,9 +34,12 @@ dependencies {
             [group: 'org.projectlombok', name: 'lombok', version: '1.16.18'],
     )
 
-    compile(
-            [group: 'org.apache.commons', name: 'commons-text', version: '1.1'],
+    api(
             [group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'],
+    )
+
+    implementation(
+            [group: 'org.apache.commons', name: 'commons-text', version: '1.1'],
     )
 
     testCompile(
