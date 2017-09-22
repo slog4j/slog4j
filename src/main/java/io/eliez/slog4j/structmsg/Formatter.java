@@ -2,19 +2,22 @@ package io.eliez.slog4j.structmsg;
 
 import io.eliez.slog4j.LongId;
 import io.eliez.slog4j.ObjectConverter;
-import io.eliez.slog4j.ValueConverter;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.text.StrBuilder;
+import org.joda.convert.StringConvert;
+import org.joda.convert.StringConverter;
+import org.joda.convert.ToStringConverter;
 
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 @UtilityClass
 public class Formatter {
-    private static final char   FIELD_SPLIT               = ' ';
+    private static final char   FIELD_SEP                 = ' ';
+    private static final char   KV_SEP                    = '=';
     private static final char   OPEN_SUBFIELD             = '[';
     private static final char   CLOSE_SUBFIELD            = ']';
     private static final String NULL_PLACEHOLDER          = "_null_";
@@ -35,11 +38,25 @@ public class Formatter {
         }
     };
 
-    private static final Map<Class, ValueConverter>  VALUE_CONVERTERS  = new ClassMap<ValueConverter>();
+    private static final StringConvert               STRING_CONVERT    = new StringConvert(true);
     private static final Map<Class, ObjectConverter> OBJECT_CONVERTERS = new ClassMap<ObjectConverter>();
 
-    public static <T> void registerValueConverter(Class<T> clazz, ValueConverter<T> valueConverter) {
-        VALUE_CONVERTERS.put(clazz, valueConverter);
+    public static <T> void registerValueConverter(Class<T> clazz, StringConverter<T> converter) {
+        STRING_CONVERT.register(clazz, converter);
+    }
+
+    public static <T> void registerValueConverter(Class<T> clazz, final ToStringConverter<T> valueConverter) {
+        registerValueConverter(clazz, new StringConverter<T>() {
+            @Override
+            public T convertFromString(Class<? extends T> cls, String str) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public String convertToString(T object) {
+                return valueConverter.convertToString(object);
+            }
+        });
     }
 
     public static <T> void registerObjectConverter(Class<T> clazz, ObjectConverter<T> objectConverter) {
@@ -47,9 +64,9 @@ public class Formatter {
     }
 
     static {
-        registerValueConverter(LongId.class, LongIdConverter.SINGLETON);
-        registerValueConverter(SocketAddress.class, SocketAddressConverter.SINGLETON);
-        registerObjectConverter(Map.class, MapConverter.SINGLETON);
+        registerValueConverter(LongId.class, new LongIdConverter());
+        registerValueConverter(InetSocketAddress.class, new InetSocketAddressConverter());
+        registerObjectConverter(Map.class, new MapConverter());
     }
 
     public static String format(Object... otherFields) {
@@ -59,21 +76,21 @@ public class Formatter {
 
     public static String formatEvent(String eventId, Object... otherFields) {
         StrBuilder sb = SB_POOL.get();
-        appendBareText(sb.append("evt="), eventId);
+        appendBareText(sb.append("evt").append(KV_SEP), eventId);
         return appendFields(sb, otherFields).toString();
     }
 
     public static String formatTracedEvent(String eventId, long spanId, Object... otherFields) {
         StrBuilder sb = SB_POOL.get();
-        appendBareText(sb.append("evt="), eventId)
-                .append(FIELD_SPLIT)
-                .append("spanId=")
-                .append(LongIdConverter.convert(spanId));
+        appendBareText(sb.append("evt").append(KV_SEP), eventId)
+                .append(FIELD_SEP)
+                .append("spanId").append(KV_SEP)
+                .append(LongIdConverter.convertToString(spanId));
         return appendFields(sb, otherFields).toString();
     }
 
     private static StrBuilder appendBareText(StrBuilder sb, String str) {
-        boolean mustQuote = str.indexOf(FIELD_SPLIT) >= 0;
+        boolean mustQuote = str.indexOf(FIELD_SEP) >= 0;
         if (mustQuote) {
             sb.append('\'');
         }
@@ -98,7 +115,10 @@ public class Formatter {
         return sb;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({
+            "unchecked",
+            "squid:ForLoopCounterChangedCheck"  // "for" loop stop conditions should be invariant
+    })
     private static StrBuilder appendFields(StrBuilder sb, Object[] fields) {
         for (int i = 0; i < fields.length; i++) {
             Object field = fields[i];
@@ -109,7 +129,7 @@ public class Formatter {
             if (field instanceof String) {
                 String key = (String) field;
                 // TODO: verificar key [alphanum]+
-                sb.appendSeparator(FIELD_SPLIT).append(key).append('=');
+                sb.appendSeparator(FIELD_SEP).append(key).append(KV_SEP);
                 if ((i + 1) != fields.length) {
                     Object obj = fields[++i];
                     appendValue(sb, obj);
@@ -119,11 +139,11 @@ public class Formatter {
             } else {
                 ObjectConverter objectConverter = OBJECT_CONVERTERS.get(field.getClass());
                 if (objectConverter != null) {
-                    appendFields(sb.appendSeparator(FIELD_SPLIT), objectConverter.convert(field));
+                    appendFields(sb.appendSeparator(FIELD_SEP), objectConverter.convert(field));
                 } else {
-                    sb.appendSeparator(FIELD_SPLIT)
+                    sb.appendSeparator(FIELD_SEP)
                             .append(field.getClass().getName())
-                            .append('=')
+                            .append(KV_SEP)
                             .append(field.hashCode());
                 }
             }
@@ -131,7 +151,7 @@ public class Formatter {
         return sb;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "UnusedReturnValue"})
     private static StrBuilder appendValue(StrBuilder sb, Object obj) {
         if (obj == null) {
             return sb.append(NULL_PLACEHOLDER);
@@ -140,57 +160,51 @@ public class Formatter {
             return appendBareText(sb, (String) obj);
         }
         if (ClassUtils.isPrimitiveWrapper(obj.getClass()) || obj.getClass().isEnum()) {
-            // no special characters to handle
+            // don't need to handle special characters here
             return sb.append(obj.toString());
         }
-        ValueConverter valueConverter = VALUE_CONVERTERS.get(obj.getClass());
-        if (valueConverter != null) {
-            return appendBareText(sb, valueConverter.convert(obj));
+        try {
+            String str = STRING_CONVERT.convertToString(obj);
+            return appendBareText(sb, str);
+        } catch (IllegalStateException ignored) {
+            // no converter was found for object's class
+            ObjectConverter objectConverter = OBJECT_CONVERTERS.get(obj.getClass());
+            if (objectConverter != null) {
+                return appendFields(sb.append(OPEN_SUBFIELD), objectConverter.convert(obj))
+                        .append(CLOSE_SUBFIELD);
+            }
+            return sb.append(obj.getClass().getSimpleName())
+                    .append('#')
+                    .append(NO_CONVERTER_PLACEHOLDER);
         }
-        ObjectConverter objectConverter = OBJECT_CONVERTERS.get(obj.getClass());
-        if (objectConverter != null) {
-            return appendFields(sb.append(OPEN_SUBFIELD), objectConverter.convert(obj))
-                    .append(CLOSE_SUBFIELD);
-        }
-        return sb.append(obj.getClass().getSimpleName())
-                .append('#')
-                .append(NO_CONVERTER_PLACEHOLDER);
     }
 
     private static StrBuilder appendFields(StrBuilder sb, Collection<Map.Entry<?, Object>> fields) {
         int loopIndex = 0;
         for (Map.Entry<?, Object> entry : fields) {
             // TODO: verificar key [alphanum]+
-            sb.appendSeparator(FIELD_SPLIT, loopIndex++).append(entry.getKey().toString()).append('=');
+            sb.appendSeparator(FIELD_SEP, loopIndex++).append(entry.getKey().toString()).append(KV_SEP);
             appendValue(sb, entry.getValue());
         }
         return sb;
     }
 
-    private static final class LongIdConverter implements ValueConverter<LongId> {
-        static final LongIdConverter SINGLETON = new LongIdConverter();
-
-        private LongIdConverter() {
-        }
+    private static final class LongIdConverter implements ToStringConverter<LongId> {
 
         @Override
-        public String convert(LongId longId) {
-            return convert(longId.getValue());
+        public String convertToString(LongId longId) {
+            return convertToString(longId.getValue());
         }
 
-        static String convert(long value) {
+        static String convertToString(long value) {
             return String.format("%016x", value);
         }
     }
 
-    private static final class SocketAddressConverter implements ValueConverter<SocketAddress> {
-        static final SocketAddressConverter SINGLETON = new SocketAddressConverter();
-
-        private SocketAddressConverter() {
-        }
+    private static final class InetSocketAddressConverter implements ToStringConverter<InetSocketAddress> {
 
         @Override
-        public String convert(SocketAddress value) {
+        public String convertToString(InetSocketAddress value) {
             String text = value.toString();
             int sep;
             if ((sep = text.indexOf('/')) >= 0) {
@@ -226,14 +240,10 @@ public class Formatter {
     }
 
     public static final class MapConverter implements ObjectConverter<Map> {
-        static final MapConverter SINGLETON = new MapConverter();
-
-        private MapConverter() {
-        }
 
         @Override
         @SuppressWarnings("unchecked")
-        public Collection<Map.Entry> convert(Map map) {
+        public Collection<Map.Entry<String, Object>> convert(Map map) {
             return map.entrySet();
         }
     }

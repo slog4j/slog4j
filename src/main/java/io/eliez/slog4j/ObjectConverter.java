@@ -4,5 +4,5 @@ import java.util.Collection;
 import java.util.Map;
 
 public interface ObjectConverter<T> {
-    Collection<Map.Entry> convert(T object);
+    Collection<Map.Entry<String, Object>> convert(T object);
 }

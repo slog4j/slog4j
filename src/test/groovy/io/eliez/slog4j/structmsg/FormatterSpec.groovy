@@ -1,6 +1,7 @@
 package io.eliez.slog4j.structmsg
 
 import groovy.transform.TupleConstructor
+import io.eliez.slog4j.LongId
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -30,7 +31,7 @@ class FormatterSpec extends Specification {
     }
 
     @Unroll
-    def 'formatações simples: #description'() {
+    def 'bare formatting: #description'() {
         when:
             def msg = Formatter.format(fields as Object[])
 
@@ -38,18 +39,36 @@ class FormatterSpec extends Specification {
             msg == expectedMessage
 
         where:
-            description         | fields                                                                                                            || expectedMessage
-            'empty fields'      | []                                                                                                                || ''
-            'response object'   | [new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453)]                                           || 'clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453'
-            'kv response kv'    | ['obj', 'server4', new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453), 'len', 560]             || 'obj=server4 clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453 len=560'
-            'InetSocketAddress' | ['from', new InetSocketAddress('localhost', 9000)]                                                                || 'from=127.0.0.1:9000'
-            'kv pairs'          | ['obj', 'server4', 'evt', 'dataSent', 'traceId', 'TID 2', 'len', 560]                                             || "obj=server4 evt=dataSent traceId='TID 2' len=560"
-            'value is map'      | ['parameters', [readerFW: '2.100', readerModel: 'RC700', operation: 'AA', readerSN: 2147490583, csn: 1666649158]] || 'parameters=[readerFW=2.100 readerModel=RC700 operation=AA readerSN=2147490583 csn=1666649158]'
+            description              | fields                                                                                                            || expectedMessage
+            'empty fields'           | []                                                                                                                || ''
+            'response object'        | [new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453)]                                           || 'clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453'
+            'kv response kv'         | ['obj', 'server4', new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453), 'len', 560]             || 'obj=server4 clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453 len=560'
+            'InetSocketAddress'      | ['from', new InetSocketAddress('localhost', 9000)]                                                                || 'from=127.0.0.1:9000'
+            'kv pairs'               | ['obj', 'server4', 'evt', 'dataSent', 'traceId', 'TID 2', 'len', 560]                                             || "obj=server4 evt=dataSent traceId='TID 2' len=560"
+            'ignore null, LongId'    | ['obj', 'server4', 'evt', 'dataSent', null, 'traceId', new LongId(0x69e3d3a6db5b8241L), 'len', 560]               || "obj=server4 evt=dataSent traceId=69e3d3a6db5b8241 len=560"
+            'value w/ special chars' | ['errno', 1001, 'message', "['the' error]"]                                                                       || "errno=1001 message='\\[\\'the\\' error\\]'"
+            'value is map'           | ['parameters', [readerFW: '2.100', readerModel: 'RC700', operation: 'AA', readerSN: 2147490583, csn: 1666649158]] || 'parameters=[readerFW=2.100 readerModel=RC700 operation=AA readerSN=2147490583 csn=1666649158]'
     }
 
 
     @Unroll
-    def 'formatações simples - eventId=#eventId, spanId=#spanId'() {
+    def 'formatting with eventId=#eventId'() {
+        when:
+            def msg = Formatter.formatEvent(eventId, fields as Object[])
+
+        then:
+            msg == expectedMessage
+
+        where:
+            eventId     | fields                                                                                                                                                              || expectedMessage
+            'respSent'  | [[seq: 0, bodyLen: 1453]]                                                                                                                                           || 'evt=respSent seq=0 bodyLen=1453'
+            'msgRecv'   | ['from', new InetSocketAddress('localhost', 9000)]                                                                                                                  || 'evt=msgRecv from=127.0.0.1:9000'
+            'newClient' | ['port', 4433, 'from', new InetSocketAddress('10.34.21.34', 49694), 'protocol', 'tls1.1', 'cipherSuite', CipherSuite.SSL_RSA_WITH_RC4_128_SHA, 'resumption', false] || 'evt=newClient port=4433 from=10.34.21.34:49694 protocol=tls1.1 cipherSuite=SSL_RSA_WITH_RC4_128_SHA resumption=false'
+    }
+
+
+    @Unroll
+    def 'formatting with eventId=#eventId, spanId=#spanId'() {
         when:
             def msg = Formatter.formatTracedEvent(eventId, spanId, fields as Object[])
 
