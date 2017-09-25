@@ -50,22 +50,14 @@ tasks.withType(Test) {
     }
 }
 
-jacoco {
-    // Upgrade ASAP to next JaCoCo version that will likely filter out lombok generated code
-    // see https://github.com/jacoco/jacoco/issues/15
-    toolVersion = '0.7.9'
-}
-
 jacocoTestReport {
-    group = "Reporting"
-    description = "Generate Jacoco coverage reports after running tests."
     reports {
         xml.enabled = true
         html.enabled = true
     }
 }
 
-test.finalizedBy jacocoTestReport
+check.finalizedBy jacocoTestReport
 
 bintray {
     user = "${project.properties.bintrayUser}"
