@@ -64,4 +64,5 @@ atlassian-ide-plugin.xml
 .nbattrs
 
 # Others
+.gradletasknamecache
 .debris
