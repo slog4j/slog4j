@@ -7,7 +7,7 @@ Allows you to stop logging prose and to start logging structured events.
 ![Open Source License](https://img.shields.io/github/license/eliezio/slog4j.svg)
 [![Travis-CI](https://img.shields.io/travis/eliezio/slog4j.svg)](https://travis-ci.org/eliezio/slog4j)
 [![Codecov](https://img.shields.io/codecov/c/github/eliezio/slog4j.svg)](https://codecov.io/github/eliezio/slog4j?branch=master)
-![GitHub release](https://img.shields.io/github/release/eliezio/slog4j.svg)]
+![GitHub release](https://img.shields.io/github/release/eliezio/slog4j.svg)
 [![Join the chat at https://gitter.im/jstriebel/badges](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/eliezio/slog4j)
 
 ## Adding to your project
