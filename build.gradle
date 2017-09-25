@@ -60,10 +60,20 @@ jacocoTestReport {
 check.finalizedBy jacocoTestReport
 
 bintray {
-    user = "${project.properties.bintrayUser}"
-    key = "${project.properties.bintrayKey}"
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_API_KEY')
+    configurations = ['archives']
     pkg {
-        repo = 'generic'
+        repo = 'maven'
         name = 'slog4j'
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/eliezio/slog4j.git'
+        githubRepo = 'eliezio/slog4j'
+        githubReleaseNotesFile = 'README.md'
+        version {
+            name = project.version
+            desc = "SLog4j $project.version final"
+            vcsTag = "v$project.version"
+        }
     }
 }
