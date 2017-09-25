@@ -6,7 +6,7 @@ Allows you to stop logging prose and to start logging structured events.
 
 ![Open Source License](https://img.shields.io/github/license/eliezio/slog4j.svg)
 [![Travis-CI](https://img.shields.io/travis/eliezio/slog4j.svg)](https://travis-ci.org/eliezio/slog4j)
-[![Codecov](https://img.shields.io/codecov/c/github/eliezio/slog4j.svg)](https://codecov.io/github/eliezio/slog4j?branch=master)
+[![codecov](https://codecov.io/gh/eliezio/slog4j/branch/master/graph/badge.svg)](https://codecov.io/gh/eliezio/slog4j)
 ![GitHub release](https://img.shields.io/github/release/eliezio/slog4j.svg)
 [![Join the chat at https://gitter.im/jstriebel/badges](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/eliezio/slog4j)
 
@@ -44,12 +44,12 @@ Instead, we can generate a message like this
 
     evt='Processed flight records' recordCount=23 airlineCode=UA flightNumber=1234 airlineName=United
 
-This is very easy to parse, the message itself is just a plain description and all the context information is 
+This is very easy to parse, the message itself is just a plain description and all the context information is
 passed as separate key/value pairs.
 
-When this type of log entry is forwarded to a log aggregation service (such as Splunk, Logstash, etc) it is trivial to 
+When this type of log entry is forwarded to a log aggregation service (such as Splunk, Logstash, etc) it is trivial to
 parse it and extract context information from it.
-Thus, it is very easy to perform log analytics, which are critical to many open applications (especially multi-tenant 
+Thus, it is very easy to perform log analytics, which are critical to many open applications (especially multi-tenant
 cloud applications).
 
 ## What is a structured event
@@ -75,7 +75,7 @@ The **SLogger** interface is very simple and offers these basic methods:
 
 ```java
     public interface SLogger {
-    
+
         // level=ERROR, traced events
         void error(long spanId, String eventId);
         void error(long spanId, String eventId, Object obj);
@@ -99,7 +99,7 @@ Depending on the context, object can be handled as simple or complex.
 
 ## Logging key value pairs
 
-Just pass in key/value pairs as parameters (all keys **must** be String, values can be anything convertible to String 
+Just pass in key/value pairs as parameters (all keys **must** be String, values can be anything convertible to String
 through Joda-Convert), e.g.
 
 ```java
