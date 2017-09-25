@@ -7,6 +7,11 @@ export TERM=dumb
 
 SWITCHES="--info --stacktrace"
 
+echo TRAVIS Environment Variables
+echo ----------------------------
+env | grep -E "^TRAVIS_"
+echo ----------------------------
+
 if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
   echo -e "Build Pull Request #$TRAVIS_PULL_REQUEST => Branch [$TRAVIS_BRANCH]"
   ./gradlew build $SWITCHES
