@@ -25,7 +25,7 @@ else
     ./gradlew -Prelease.travisci=true -Prelease.useLastTag=true candidate $SWITCHES
     ;;
   *)
-    ./gradlew -Prelease.travisci=true -Prelease.useLastTag=true final $SWITCHES
+    ./gradlew -Prelease.travisci=true -Prelease.useLastTag=true final bintrayUpload $SWITCHES
     ;;
   esac
 fi
