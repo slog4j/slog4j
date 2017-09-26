@@ -4,11 +4,11 @@ Structured Event Logging for Java.
 
 Allows you to stop logging prose and to start logging structured events.
 
-![MIT](https://img.shields.io/github/license/eliezio/slog4j.svg)
-[![Build Status](https://travis-ci.org/eliezio/slog4j.svg?branch=master)](https://travis-ci.org/eliezio/slog4j)
-[![Coverage Status](https://coveralls.io/repos/github/eliezio/slog4j/badge.svg?branch=master)](https://coveralls.io/github/eliezio/slog4j?branch=master)
-![GitHub release](https://img.shields.io/github/release/eliezio/slog4j.svg)
-[![Join the chat at https://gitter.im/jstriebel/badges](https://img.shields.io/gitter/room/eliezio/slog4j.svg)](https://gitter.im/eliezio/slog4j)
+[![License](https://img.shields.io/github/license/eliezio/slog4j.svg)](https://opensource.org/licenses/MIT)
+[![Build](https://travis-ci.org/eliezio/slog4j.svg?branch=master)](https://travis-ci.org/eliezio/slog4j)
+[![Coverage](https://coveralls.io/repos/github/eliezio/slog4j/badge.svg?branch=master)](https://coveralls.io/github/eliezio/slog4j?branch=master)
+[![Download](https://api.bintray.com/packages/eliezio/maven/slog4j/images/download.svg) ](https://bintray.com/eliezio/maven/slog4j/_latestVersion)
+[![Chat](https://img.shields.io/gitter/room/eliezio/slog4j.svg)](https://gitter.im/eliezio/slog4j)
 
 ## Adding to your project
 
