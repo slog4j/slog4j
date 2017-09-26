@@ -2,19 +2,20 @@
 
 - [x] Option to include timestamp/level on formatted message
 - [ ] How to log stacktraces? Use JSON? Is there any alternative format to the standard multi-line format?
+- [ ] JSONFormatter
 - [ ] Support aggregators other than LogStash
 
 ## Implementation
 
 - [ ] Clean-up every key
-- [ ] Check appender?
 
 ## Documentation
 
 - [ ] Document API
+- [ ] Java 1.6
 - [ ] cites TechRadar / J. Turnbull
 - [ ] spanId/traceId recommendations
-- [ ] More conventional examples (tests included)
+- [ ] Use a conventional domain for specs and examples
 - [ ] Hints on how to keep the `spanId` context-wide available (common cases: Spring Web);
 - [ ] How to use with Spring Sleuth;
 
