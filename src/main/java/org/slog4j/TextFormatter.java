@@ -5,6 +5,7 @@ import lombok.val;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrBuilder;
+import org.slf4j.event.Level;
 
 import java.util.Map;
 
@@ -16,77 +17,142 @@ public class TextFormatter extends BaseFormatter {
 
     public static final TextFormatter INSTANCE = new TextFormatter(true);
 
+    private PropertyFormat timeFormat  = PropertyFormat.KEY_VALUE;
+    private PropertyFormat levelFormat = PropertyFormat.KEY_VALUE;
+
+    public enum PropertyFormat {
+        OMIT,
+        VALUE_ONLY,
+        KEY_VALUE
+    }
+
     public TextFormatter() {
     }
 
-    public TextFormatter(boolean immutable) {
+    private TextFormatter(boolean immutable) {
         super(immutable);
     }
 
-    @Override
-    public String format(String eventId) {
-        val sb = StrBuilderFactory.get();
-        return appendText(sb.append(getEventIdLabel()).append(KV_SEP), eventId).toString();
+    public TextFormatter timeFormat(PropertyFormat format) {
+        this.timeFormat = format;
+        return this;
+    }
+
+    public TextFormatter levelFormat(PropertyFormat format) {
+        this.levelFormat = format;
+        return this;
+    }
+
+    public TextFormatter omitCommonProperties() {
+        return timeFormat(PropertyFormat.OMIT)
+            .levelFormat(PropertyFormat.OMIT);
+    }
+
+    public TextFormatter valueOnlyCommonProperties() {
+        return timeFormat(PropertyFormat.VALUE_ONLY)
+            .levelFormat(PropertyFormat.VALUE_ONLY);
     }
 
     @Override
-    public String format(String eventId, Object obj) {
+    public String format(TimeProvider timeProvider, Level level, String eventId) {
         val sb = StrBuilderFactory.get();
-        appendText(sb.append(getEventIdLabel()).append(KV_SEP), eventId);
+        appendCommonFields(sb, level, timeProvider);
+        return appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId).toString();
+    }
+
+    @Override
+    public String format(TimeProvider timeProvider, Level level, String eventId, Object obj) {
+        val sb = StrBuilderFactory.get();
+        appendCommonFields(sb, level, timeProvider);
+        appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId);
         return appendComplexObject(sb.append(FIELD_SEP), obj).toString();
     }
 
     @Override
-    public String format(String eventId, String key, Object value) {
+    public String format(TimeProvider timeProvider, Level level, String eventId, String key, Object value) {
         val sb = StrBuilderFactory.get();
-        appendText(sb.append(getEventIdLabel()).append(KV_SEP), eventId);
+        appendCommonFields(sb, level, timeProvider);
+        appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId);
         return appendValue(sb.append(FIELD_SEP).append(normalizeKey(key)).append(KV_SEP), value).toString();
     }
 
     @Override
-    public String format(String eventId, Object... otherFields) {
+    public String format(TimeProvider timeProvider, Level level, String eventId, Object... otherFields) {
         val sb = StrBuilderFactory.get();
-        appendText(sb.append(getEventIdLabel()).append(KV_SEP), eventId);
+        appendCommonFields(sb, level, timeProvider);
+        appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId);
         return appendFields(sb, otherFields).toString();
     }
 
     @Override
-    public String format(long spanId, String eventId) {
+    public String format(TimeProvider timeProvider, Level level, long spanId, String eventId) {
         val sb = StrBuilderFactory.get();
-        return appendText(sb.append(getEventIdLabel()).append(KV_SEP), eventId)
+        appendCommonFields(sb, level, timeProvider);
+        return appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId)
             .append(FIELD_SEP)
-            .append(getSpanIdLabel()).append(KV_SEP)
+            .append(spanIdLabel()).append(KV_SEP)
             .append(LongIdConverter.convertToString(spanId)).toString();
     }
 
     @Override
-    public String format(long spanId, String eventId, Object obj) {
+    public String format(TimeProvider timeProvider, Level level, long spanId, String eventId, Object obj) {
         val sb = StrBuilderFactory.get();
-        appendText(sb.append(getEventIdLabel()).append(KV_SEP), eventId)
+        appendCommonFields(sb, level, timeProvider);
+        appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId)
             .append(FIELD_SEP)
-            .append(getSpanIdLabel()).append(KV_SEP)
+            .append(spanIdLabel()).append(KV_SEP)
             .append(LongIdConverter.convertToString(spanId));
         return appendComplexObject(sb.append(FIELD_SEP), obj).toString();
     }
 
     @Override
-    public String format(long spanId, String eventId, String key, Object value) {
+    public String format(TimeProvider timeProvider, Level level, long spanId, String eventId, String key, Object value) {
         val sb = StrBuilderFactory.get();
-        appendText(sb.append(getEventIdLabel()).append(KV_SEP), eventId)
+        appendCommonFields(sb, level, timeProvider);
+        appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId)
             .append(FIELD_SEP)
-            .append(getSpanIdLabel()).append(KV_SEP)
+            .append(spanIdLabel()).append(KV_SEP)
             .append(LongIdConverter.convertToString(spanId));
         return appendValue(sb.appendSeparator(FIELD_SEP).append(normalizeKey(key)).append(KV_SEP), value).toString();
     }
 
     @Override
-    public String format(long spanId, String eventId, Object... otherFields) {
+    public String format(TimeProvider timeProvider, Level level, long spanId, String eventId, Object... otherFields) {
         val sb = StrBuilderFactory.get();
-        appendText(sb.append(getEventIdLabel()).append(KV_SEP), eventId)
+        appendCommonFields(sb, level, timeProvider);
+        appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId)
             .append(FIELD_SEP)
-            .append(getSpanIdLabel()).append(KV_SEP)
+            .append(spanIdLabel()).append(KV_SEP)
             .append(LongIdConverter.convertToString(spanId));
         return appendFields(sb, otherFields).toString();
+    }
+
+    private void appendCommonFields(StrBuilder sb, Level level, TimeProvider timeProvider) {
+        switch (timeFormat) {
+            case OMIT:
+                break;
+
+            case VALUE_ONLY:
+                sb.append(FORMAT_ISO8601_MILLIS.format(timeProvider.currentTimeMillis()));
+                break;
+
+            case KEY_VALUE:
+                sb.append(TIME_LABEL).append(KV_SEP)
+                    .append(FORMAT_ISO8601_MILLIS.format(timeProvider.currentTimeMillis()));
+                break;
+        }
+        switch (levelFormat) {
+            case OMIT:
+                break;
+
+            case VALUE_ONLY:
+                sb.appendSeparator(FIELD_SEP).append(level.toString());
+                break;
+
+            case KEY_VALUE:
+                sb.appendSeparator(FIELD_SEP).append(LEVEL_LABEL).append(KV_SEP).append(level.toString());
+                break;
+        }
     }
 
     private static StrBuilder appendText(StrBuilder sb, String str) {

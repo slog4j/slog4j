@@ -1,11 +1,15 @@
 package org.slog4j
 
 import groovy.transform.TupleConstructor
+import org.slf4j.event.Level
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
 class TextFormatterSpec extends Specification {
+
+    static final TimeProvider BROKEN_CLOCK      = TimeProviders.brokenClock(1506397907801L)
+    static final String       BROKEN_CLOCK_TIME = '2017-09-26T00:51:47.801-0300'
 
     enum CipherSuite {
         SSL_RSA_WITH_RC4_128_SHA
@@ -27,7 +31,7 @@ class TextFormatterSpec extends Specification {
     TextFormatter textFormatter = new TextFormatter()
 
     def setupSpec() {
-        textFormatter.setEventIdLabel('event')
+        textFormatter.omitCommonProperties().eventIdLabel('event')
         textFormatter.registerValueConverter(ShortId, { ShortId sid -> String.format('0x%04x', sid.id) })
         textFormatter.registerObjectConverter(Response, { Response resp ->
             [clntNii: new ShortId(resp.clntNii), servNii: new ShortId(resp.servNii), seq: resp.seq, bodyLen: resp.bodyLen].entrySet()
@@ -35,9 +39,9 @@ class TextFormatterSpec extends Specification {
     }
 
     @Unroll
-    def 'untraced event: #eventId :: #description'() {
+    def 'untraced event: #eventId // #description'() {
         when:
-            def msg = textFormatter.format(eventId, fields as Object[])
+            def msg = textFormatter.format(TimeProviders.SYSTEM, Level.INFO, eventId, fields as Object[])
 
         then:
             msg == expectedMessage
@@ -58,7 +62,7 @@ class TextFormatterSpec extends Specification {
     @Unroll
     def 'traced event: #eventId, spanId: #spanId'() {
         when:
-            def msg = textFormatter.format(spanId, eventId, fields as Object[])
+            def msg = textFormatter.format(TimeProviders.SYSTEM, Level.INFO, spanId, eventId, fields as Object[])
 
         then:
             msg == expectedMessage
@@ -68,5 +72,17 @@ class TextFormatterSpec extends Specification {
             'respSent'  | 0x1355932dc9fb94cfL | ['response', new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453)]                                                                                 || 'event=respSent spanId=1355932dc9fb94cf response=[clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453]'
             'msgRecv'   | 0x1b2796bac997c13eL | ['from', new InetSocketAddress('localhost', 9000)]                                                                                                                  || 'event=msgRecv spanId=1b2796bac997c13e from=127.0.0.1:9000'
             'newClient' | 0xfc819b4efe1fc078L | ['port', 4433, 'from', new InetSocketAddress('10.34.21.34', 49694), 'protocol', 'tls1.1', 'cipherSuite', CipherSuite.SSL_RSA_WITH_RC4_128_SHA, 'resumption', false] || 'event=newClient spanId=fc819b4efe1fc078 port=4433 from=10.34.21.34:49694 protocol=tls1.1 cipherSuite=SSL_RSA_WITH_RC4_128_SHA resumption=false'
+    }
+
+
+    def 'value-only common properties'() {
+        given:
+            def formatter = new TextFormatter().valueOnlyCommonProperties()
+
+        when:
+            def msg = formatter.format(BROKEN_CLOCK, Level.TRACE, 'start', 'aKey', 'aValue')
+
+        then:
+            msg == "$BROKEN_CLOCK_TIME TRACE evt=start aKey=aValue"
     }
 }

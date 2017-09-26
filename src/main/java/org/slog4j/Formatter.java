@@ -2,11 +2,12 @@ package org.slog4j;
 
 import org.joda.convert.StringConverter;
 import org.joda.convert.ToStringConverter;
+import org.slf4j.event.Level;
 
 public interface Formatter {
-    Formatter setEventIdLabel(String eventIdLabel);
+    Formatter eventIdLabel(String eventIdLabel);
 
-    Formatter setSpanIdLabel(String spanIdLabel);
+    Formatter spanIdLabel(String spanIdLabel);
 
     <T> Formatter registerValueConverter(Class<T> clazz, StringConverter<T> converter);
 
@@ -14,19 +15,19 @@ public interface Formatter {
 
     <T> Formatter registerObjectConverter(Class<T> clazz, ObjectConverter<T> objectConverter);
 
-    String format(String eventId);
+    String format(TimeProvider timeProvider, Level level, String eventId);
 
-    String format(String eventId, Object obj);
+    String format(TimeProvider timeProvider, Level level, String eventId, Object obj);
 
-    String format(String eventId, String key, Object value);
+    String format(TimeProvider timeProvider, Level level, String eventId, String key, Object value);
 
-    String format(String eventId, Object... otherFields);
+    String format(TimeProvider timeProvider, Level level, String eventId, Object... otherFields);
 
-    String format(long spanId, String eventId);
+    String format(TimeProvider timeProvider, Level level, long spanId, String eventId);
 
-    String format(long spanId, String eventId, Object obj);
+    String format(TimeProvider timeProvider, Level level, long spanId, String eventId, Object obj);
 
-    String format(long spanId, String eventId, String key, Object value);
+    String format(TimeProvider timeProvider, Level level, long spanId, String eventId, String key, Object value);
 
-    String format(long spanId, String eventId, Object... otherFields);
+    String format(TimeProvider timeProvider, Level level, long spanId, String eventId, Object... otherFields);
 }
