@@ -1,8 +1,8 @@
 ## Design
 
+- [x] Option to include timestamp/level on formatted message
 - [ ] How to log stacktraces? Use JSON? Is there any alternative format to the standard multi-line format?
 - [ ] Support aggregators other than LogStash
-- [ ] Option to include timestamp/level on formatted message
 
 ## Implementation
 

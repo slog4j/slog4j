@@ -10,6 +10,9 @@ import spock.lang.Specification
 
 class SLoggerSpec extends Specification {
 
+    static final TimeProvider BROKEN_CLOCK      = TimeProviders.brokenClock(1506397907801L)
+    static final String       BROKEN_CLOCK_TIME = '2017-09-26T00:51:47.801-0300'
+
     @Shared
     TextFormatter textFormatter = new TextFormatter()
 
@@ -33,7 +36,7 @@ class SLoggerSpec extends Specification {
             def rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as ch.qos.logback.classic.Logger
             rootLogger.addAppender(appender)
             rootLogger.setLevel(Level.TRACE)
-            def slog = SLoggerFactory.getLogger(rootLogger, textFormatter)
+            def slog = SLoggerFactory.getLogger(rootLogger).withFormatter(textFormatter).withTimeProvider(BROKEN_CLOCK)
             def spanId = 299792458L
 
         when:
@@ -102,221 +105,221 @@ class SLoggerSpec extends Specification {
             // level=ERROR, untraced events
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.ERROR
-                assert e.formattedMessage == 'evt=errorNakedEvent'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=ERROR evt=errorNakedEvent"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.ERROR
-                assert e.formattedMessage == 'evt=errorEventWithAnObject firstName=John lastName=Smith age=40'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=ERROR evt=errorEventWithAnObject firstName=John lastName=Smith age=40"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.ERROR
-                assert e.formattedMessage == 'evt=errorEventWithKeySimpleValue aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=ERROR evt=errorEventWithKeySimpleValue aKey=aValue"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.ERROR
-                assert e.formattedMessage == 'evt=errorEventWithKeyComplexValue person=[firstName=John lastName=Smith age=40]'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=ERROR evt=errorEventWithKeyComplexValue person=[firstName=John lastName=Smith age=40]"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.ERROR
-                assert e.formattedMessage == 'evt=errorEventWithFields firstName=John lastName=Smith age=40 aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=ERROR evt=errorEventWithFields firstName=John lastName=Smith age=40 aKey=aValue"
             }
 
             // level=ERROR, traced events
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.ERROR
-                assert e.formattedMessage == 'evt=errorNakedEvent spanId=0000000011de784a'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=ERROR evt=errorNakedEvent spanId=0000000011de784a"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.ERROR
-                assert e.formattedMessage == 'evt=errorEventWithAnObject spanId=0000000011de784a firstName=John lastName=Smith age=40'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=ERROR evt=errorEventWithAnObject spanId=0000000011de784a firstName=John lastName=Smith age=40"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.ERROR
-                assert e.formattedMessage == 'evt=errorEventWithKeySimpleValue spanId=0000000011de784a aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=ERROR evt=errorEventWithKeySimpleValue spanId=0000000011de784a aKey=aValue"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.ERROR
-                assert e.formattedMessage == 'evt=errorEventWithKeyComplexValue spanId=0000000011de784a person=[firstName=John lastName=Smith age=40]'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=ERROR evt=errorEventWithKeyComplexValue spanId=0000000011de784a person=[firstName=John lastName=Smith age=40]"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.ERROR
-                assert e.formattedMessage == 'evt=errorEventWithFields spanId=0000000011de784a firstName=John lastName=Smith age=40 aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=ERROR evt=errorEventWithFields spanId=0000000011de784a firstName=John lastName=Smith age=40 aKey=aValue"
             }
 
             // level=WARN, untraced events
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.WARN
-                assert e.formattedMessage == 'evt=errorNakedEvent'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=WARN evt=errorNakedEvent"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.WARN
-                assert e.formattedMessage == 'evt=errorEventWithAnObject firstName=John lastName=Smith age=40'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=WARN evt=errorEventWithAnObject firstName=John lastName=Smith age=40"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.WARN
-                assert e.formattedMessage == 'evt=errorEventWithKeySimpleValue aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=WARN evt=errorEventWithKeySimpleValue aKey=aValue"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.WARN
-                assert e.formattedMessage == 'evt=errorEventWithKeyComplexValue person=[firstName=John lastName=Smith age=40]'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=WARN evt=errorEventWithKeyComplexValue person=[firstName=John lastName=Smith age=40]"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.WARN
-                assert e.formattedMessage == 'evt=errorEventWithFields firstName=John lastName=Smith age=40 aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=WARN evt=errorEventWithFields firstName=John lastName=Smith age=40 aKey=aValue"
             }
 
             // level=WARN, traced events
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.WARN
-                assert e.formattedMessage == 'evt=errorNakedEvent spanId=0000000011de784a'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=WARN evt=errorNakedEvent spanId=0000000011de784a"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.WARN
-                assert e.formattedMessage == 'evt=errorEventWithAnObject spanId=0000000011de784a firstName=John lastName=Smith age=40'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=WARN evt=errorEventWithAnObject spanId=0000000011de784a firstName=John lastName=Smith age=40"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.WARN
-                assert e.formattedMessage == 'evt=errorEventWithKeySimpleValue spanId=0000000011de784a aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=WARN evt=errorEventWithKeySimpleValue spanId=0000000011de784a aKey=aValue"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.WARN
-                assert e.formattedMessage == 'evt=errorEventWithKeyComplexValue spanId=0000000011de784a person=[firstName=John lastName=Smith age=40]'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=WARN evt=errorEventWithKeyComplexValue spanId=0000000011de784a person=[firstName=John lastName=Smith age=40]"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.WARN
-                assert e.formattedMessage == 'evt=errorEventWithFields spanId=0000000011de784a firstName=John lastName=Smith age=40 aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=WARN evt=errorEventWithFields spanId=0000000011de784a firstName=John lastName=Smith age=40 aKey=aValue"
             }
 
             // level=INFO, untraced events
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.INFO
-                assert e.formattedMessage == 'evt=errorNakedEvent'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=INFO evt=errorNakedEvent"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.INFO
-                assert e.formattedMessage == 'evt=errorEventWithAnObject firstName=John lastName=Smith age=40'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=INFO evt=errorEventWithAnObject firstName=John lastName=Smith age=40"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.INFO
-                assert e.formattedMessage == 'evt=errorEventWithKeySimpleValue aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=INFO evt=errorEventWithKeySimpleValue aKey=aValue"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.INFO
-                assert e.formattedMessage == 'evt=errorEventWithKeyComplexValue person=[firstName=John lastName=Smith age=40]'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=INFO evt=errorEventWithKeyComplexValue person=[firstName=John lastName=Smith age=40]"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.INFO
-                assert e.formattedMessage == 'evt=errorEventWithFields firstName=John lastName=Smith age=40 aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=INFO evt=errorEventWithFields firstName=John lastName=Smith age=40 aKey=aValue"
             }
 
             // level=INFO, traced events
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.INFO
-                assert e.formattedMessage == 'evt=errorNakedEvent spanId=0000000011de784a'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=INFO evt=errorNakedEvent spanId=0000000011de784a"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.INFO
-                assert e.formattedMessage == 'evt=errorEventWithAnObject spanId=0000000011de784a firstName=John lastName=Smith age=40'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=INFO evt=errorEventWithAnObject spanId=0000000011de784a firstName=John lastName=Smith age=40"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.INFO
-                assert e.formattedMessage == 'evt=errorEventWithKeySimpleValue spanId=0000000011de784a aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=INFO evt=errorEventWithKeySimpleValue spanId=0000000011de784a aKey=aValue"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.INFO
-                assert e.formattedMessage == 'evt=errorEventWithKeyComplexValue spanId=0000000011de784a person=[firstName=John lastName=Smith age=40]'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=INFO evt=errorEventWithKeyComplexValue spanId=0000000011de784a person=[firstName=John lastName=Smith age=40]"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.INFO
-                assert e.formattedMessage == 'evt=errorEventWithFields spanId=0000000011de784a firstName=John lastName=Smith age=40 aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=INFO evt=errorEventWithFields spanId=0000000011de784a firstName=John lastName=Smith age=40 aKey=aValue"
             }
 
             // level=DEBUG, untraced events
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.DEBUG
-                assert e.formattedMessage == 'evt=errorNakedEvent'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=DEBUG evt=errorNakedEvent"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.DEBUG
-                assert e.formattedMessage == 'evt=errorEventWithAnObject firstName=John lastName=Smith age=40'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=DEBUG evt=errorEventWithAnObject firstName=John lastName=Smith age=40"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.DEBUG
-                assert e.formattedMessage == 'evt=errorEventWithKeySimpleValue aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=DEBUG evt=errorEventWithKeySimpleValue aKey=aValue"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.DEBUG
-                assert e.formattedMessage == 'evt=errorEventWithKeyComplexValue person=[firstName=John lastName=Smith age=40]'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=DEBUG evt=errorEventWithKeyComplexValue person=[firstName=John lastName=Smith age=40]"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.DEBUG
-                assert e.formattedMessage == 'evt=errorEventWithFields firstName=John lastName=Smith age=40 aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=DEBUG evt=errorEventWithFields firstName=John lastName=Smith age=40 aKey=aValue"
             }
 
             // level=DEBUG, traced events
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.DEBUG
-                assert e.formattedMessage == 'evt=errorNakedEvent spanId=0000000011de784a'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=DEBUG evt=errorNakedEvent spanId=0000000011de784a"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.DEBUG
-                assert e.formattedMessage == 'evt=errorEventWithAnObject spanId=0000000011de784a firstName=John lastName=Smith age=40'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=DEBUG evt=errorEventWithAnObject spanId=0000000011de784a firstName=John lastName=Smith age=40"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.DEBUG
-                assert e.formattedMessage == 'evt=errorEventWithKeySimpleValue spanId=0000000011de784a aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=DEBUG evt=errorEventWithKeySimpleValue spanId=0000000011de784a aKey=aValue"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.DEBUG
-                assert e.formattedMessage == 'evt=errorEventWithKeyComplexValue spanId=0000000011de784a person=[firstName=John lastName=Smith age=40]'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=DEBUG evt=errorEventWithKeyComplexValue spanId=0000000011de784a person=[firstName=John lastName=Smith age=40]"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.DEBUG
-                assert e.formattedMessage == 'evt=errorEventWithFields spanId=0000000011de784a firstName=John lastName=Smith age=40 aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=DEBUG evt=errorEventWithFields spanId=0000000011de784a firstName=John lastName=Smith age=40 aKey=aValue"
             }
 
             // level=TRACE, untraced events
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.TRACE
-                assert e.formattedMessage == 'evt=errorNakedEvent'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=TRACE evt=errorNakedEvent"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.TRACE
-                assert e.formattedMessage == 'evt=errorEventWithAnObject firstName=John lastName=Smith age=40'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=TRACE evt=errorEventWithAnObject firstName=John lastName=Smith age=40"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.TRACE
-                assert e.formattedMessage == 'evt=errorEventWithKeySimpleValue aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=TRACE evt=errorEventWithKeySimpleValue aKey=aValue"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.TRACE
-                assert e.formattedMessage == 'evt=errorEventWithKeyComplexValue person=[firstName=John lastName=Smith age=40]'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=TRACE evt=errorEventWithKeyComplexValue person=[firstName=John lastName=Smith age=40]"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.TRACE
-                assert e.formattedMessage == 'evt=errorEventWithFields firstName=John lastName=Smith age=40 aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=TRACE evt=errorEventWithFields firstName=John lastName=Smith age=40 aKey=aValue"
             }
 
             // level=TRACE, traced events
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.TRACE
-                assert e.formattedMessage == 'evt=errorNakedEvent spanId=0000000011de784a'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=TRACE evt=errorNakedEvent spanId=0000000011de784a"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.TRACE
-                assert e.formattedMessage == 'evt=errorEventWithAnObject spanId=0000000011de784a firstName=John lastName=Smith age=40'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=TRACE evt=errorEventWithAnObject spanId=0000000011de784a firstName=John lastName=Smith age=40"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.TRACE
-                assert e.formattedMessage == 'evt=errorEventWithKeySimpleValue spanId=0000000011de784a aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=TRACE evt=errorEventWithKeySimpleValue spanId=0000000011de784a aKey=aValue"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.TRACE
-                assert e.formattedMessage == 'evt=errorEventWithKeyComplexValue spanId=0000000011de784a person=[firstName=John lastName=Smith age=40]'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=TRACE evt=errorEventWithKeyComplexValue spanId=0000000011de784a person=[firstName=John lastName=Smith age=40]"
             }
             1 * appender.doAppend(_) >> { LoggingEvent e ->
                 assert e.level == Level.TRACE
-                assert e.formattedMessage == 'evt=errorEventWithFields spanId=0000000011de784a firstName=John lastName=Smith age=40 aKey=aValue'
+                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=TRACE evt=errorEventWithFields spanId=0000000011de784a firstName=John lastName=Smith age=40 aKey=aValue"
             }
     }
 }
