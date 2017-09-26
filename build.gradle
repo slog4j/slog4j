@@ -44,6 +44,8 @@ dependencies {
 }
 
 tasks.withType(Test) {
+    jvmArgs '-Duser.timezone=America/Sao_Paulo'
+
     // show standard out and standard error of the test JVM(s) on the console
     testLogging {
         events 'started', 'passed', 'skipped', 'failed'
