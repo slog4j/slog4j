@@ -2,6 +2,8 @@ package org.slog4j;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.experimental.Accessors;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
 import org.joda.convert.ToStringConverter;
@@ -12,20 +14,28 @@ import java.util.Map;
 
 public abstract class BaseFormatter implements Formatter {
 
-    private static final String DEFAULT_EVENT_ID_LABEL = "evt";
-    private static final String DEFAULT_SPAN_ID_LABEL  = "spanId";
+    private static final   String DEFAULT_EVENT_ID_LABEL = "evt";
+    private static final   String DEFAULT_SPAN_ID_LABEL  = "spanId";
+    protected static final String TIME_LABEL             = "time";
+    protected static final String LEVEL_LABEL            = "level";
 
     static final String NULL_PLACEHOLDER          = "_NULL_";
     static final String NO_CONVERTER_PLACEHOLDER  = "_NO_CONVERTER_";
     static final String MISSING_VALUE_PLACEHOLDER = "_MISSING_";
 
+    // TextFormatter assumes the format don't have spaces and no special characters that requires quoting
+    static final FastDateFormat FORMAT_ISO8601_MILLIS = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
     private final StringConvert               stringConvert    = new StringConvert(true);
     private final Map<Class, ObjectConverter> objectConverters = new ClassMap<ObjectConverter>();
 
     @Getter(AccessLevel.PROTECTED)
+    @Accessors(fluent = true)
     private String eventIdLabel = DEFAULT_EVENT_ID_LABEL;
+
     @Getter(AccessLevel.PROTECTED)
-    private String spanIdLabel  = DEFAULT_SPAN_ID_LABEL;
+    @Accessors(fluent = true)
+    private String spanIdLabel = DEFAULT_SPAN_ID_LABEL;
 
     private final boolean immutable;
 
@@ -39,14 +49,14 @@ public abstract class BaseFormatter implements Formatter {
     }
 
     @Override
-    public Formatter setEventIdLabel(String eventIdLabel) {
+    public Formatter eventIdLabel(String eventIdLabel) {
         checkIfMutable();
         this.eventIdLabel = eventIdLabel;
         return this;
     }
 
     @Override
-    public Formatter setSpanIdLabel(String spanIdLabel) {
+    public Formatter spanIdLabel(String spanIdLabel) {
         checkIfMutable();
         this.spanIdLabel = spanIdLabel;
         return this;

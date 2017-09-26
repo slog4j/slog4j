@@ -16,6 +16,10 @@ package org.slog4j;
  * </ul>
  */
 public interface SLogger {
+    SLogger withFormatter(Formatter formatter);
+
+    SLogger withTimeProvider(TimeProvider timeProvider);
+
     void error(long spanId, String eventId);
     void error(long spanId, String eventId, Object obj);
     void error(long spanId, String eventId, String key, Object value);
