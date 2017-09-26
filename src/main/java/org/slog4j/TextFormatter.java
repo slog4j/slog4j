@@ -4,7 +4,7 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StrBuilder;
+import org.apache.commons.lang3.text.StrBuilder;
 
 import java.util.Map;
 
