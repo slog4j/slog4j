@@ -1,8 +1,9 @@
-package org.slog4j;
+package org.slog4j.format;
 
 import org.joda.convert.StringConverter;
 import org.joda.convert.ToStringConverter;
 import org.slf4j.event.Level;
+import org.slog4j.time.TimeProvider;
 
 public interface Formatter {
     Formatter eventIdLabel(String eventIdLabel);

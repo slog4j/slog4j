@@ -1,4 +1,4 @@
-package org.slog4j;
+package org.slog4j.format;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -7,6 +7,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
 import org.joda.convert.ToStringConverter;
+import org.slog4j.types.LongId;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;

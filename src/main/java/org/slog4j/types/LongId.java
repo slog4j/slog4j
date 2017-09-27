@@ -1,4 +1,4 @@
-package org.slog4j;
+package org.slog4j.types;
 
 import lombok.Value;
 

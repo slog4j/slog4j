@@ -7,6 +7,10 @@ import lombok.experimental.Wither;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
+import org.slog4j.format.Formatter;
+import org.slog4j.format.TextFormatter;
+import org.slog4j.time.TimeProvider;
+import org.slog4j.time.TimeProviders;
 
 @UtilityClass
 public class SLoggerFactory {

@@ -1,7 +1,10 @@
-package org.slog4j
+package org.slog4j.format
 
 import groovy.transform.TupleConstructor
 import org.slf4j.event.Level
+import org.slog4j.time.TimeProvider
+import org.slog4j.time.TimeProviders
+import org.slog4j.types.LongId
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
