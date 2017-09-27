@@ -34,9 +34,9 @@ class TextFormatterSpec extends Specification {
     TextFormatter textFormatter = new TextFormatter()
 
     def setupSpec() {
-        textFormatter.omitCommonProperties().eventIdLabel('event')
-        textFormatter.registerValueConverter(ShortId, { ShortId sid -> String.format('0x%04x', sid.id) })
-        textFormatter.registerObjectConverter(Response, { Response resp ->
+        textFormatter.commonPropertiesFormat(TextFormatter.PropertyFormat.OMIT).eventIdLabel('event')
+        textFormatter.registerToStringConverter(ShortId, { ShortId sid -> String.format('0x%04x', sid.id) })
+        textFormatter.registerToPropertiesConverter(Response, { Response resp ->
             [clntNii: new ShortId(resp.clntNii), servNii: new ShortId(resp.servNii), seq: resp.seq, bodyLen: resp.bodyLen].entrySet()
         })
     }
@@ -44,14 +44,14 @@ class TextFormatterSpec extends Specification {
     @Unroll
     def 'untraced event: #eventId // #description'() {
         when:
-            def msg = textFormatter.format(TimeProviders.SYSTEM, Level.INFO, eventId, fields as Object[])
+            def msg = textFormatter.format(TimeProviders.system(), Level.INFO, eventId, props as Object[])
 
         then:
             msg == expectedMessage
 
         where:
-            description              | eventId       | fields                                                                                                            || expectedMessage
-            'empty fields'           | 'restart'     | []                                                                                                                || 'event=restart'
+            description              | eventId       | props                                                                                                             || expectedMessage
+            'no properties'          | 'restart'     | []                                                                                                                || 'event=restart'
             'response object'        | 'respSent'    | [new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453)]                                           || 'event=respSent clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453'
             'kv response kv'         | 'respSent'    | ['obj', 'server4', new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453), 'len', 560]             || 'event=respSent obj=server4 clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453 len=560'
             'InetSocketAddress'      | 'connect'     | ['from', new InetSocketAddress('localhost', 9000)]                                                                || 'event=connect from=127.0.0.1:9000'
@@ -65,14 +65,14 @@ class TextFormatterSpec extends Specification {
     @Unroll
     def 'traced event: #eventId, spanId: #spanId'() {
         when:
-            def msg = textFormatter.format(TimeProviders.SYSTEM, Level.INFO, spanId, eventId, fields as Object[])
+            def msg = textFormatter.format(TimeProviders.system(), Level.INFO, spanId, eventId, props as Object[])
 
         then:
             msg == expectedMessage
 
         where:
-            eventId     | spanId              | fields                                                                                                                                                              || expectedMessage
-            'respSent'  | 0x1355932dc9fb94cfL | ['response', new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453)]                                                                                 || 'event=respSent spanId=1355932dc9fb94cf response=[clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453]'
+            eventId     | spanId              | props                                                                               || expectedMessage
+            'respSent'  | 0x1355932dc9fb94cfL | ['response', new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453)] || 'event=respSent spanId=1355932dc9fb94cf response=[clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453]'
             'msgRecv'   | 0x1b2796bac997c13eL | ['from', new InetSocketAddress('localhost', 9000)]                                                                                                                  || 'event=msgRecv spanId=1b2796bac997c13e from=127.0.0.1:9000'
             'newClient' | 0xfc819b4efe1fc078L | ['port', 4433, 'from', new InetSocketAddress('10.34.21.34', 49694), 'protocol', 'tls1.1', 'cipherSuite', CipherSuite.SSL_RSA_WITH_RC4_128_SHA, 'resumption', false] || 'event=newClient spanId=fc819b4efe1fc078 port=4433 from=10.34.21.34:49694 protocol=tls1.1 cipherSuite=SSL_RSA_WITH_RC4_128_SHA resumption=false'
     }
@@ -80,7 +80,7 @@ class TextFormatterSpec extends Specification {
 
     def 'value-only common properties'() {
         given:
-            def formatter = new TextFormatter().valueOnlyCommonProperties()
+            def formatter = new TextFormatter().commonPropertiesFormat(TextFormatter.PropertyFormat.VALUE_ONLY)
 
         when:
             def msg = formatter.format(BROKEN_CLOCK, Level.TRACE, 'start', 'aKey', 'aValue')

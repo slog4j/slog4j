@@ -10,11 +10,11 @@ public interface Formatter {
 
     Formatter spanIdLabel(String spanIdLabel);
 
-    <T> Formatter registerValueConverter(Class<T> clazz, StringConverter<T> converter);
+    <T> Formatter registerToStringConverter(Class<T> clazz, StringConverter<T> converter);
 
-    <T> Formatter registerValueConverter(Class<T> clazz, ToStringConverter<T> valueConverter);
+    <T> Formatter registerToStringConverter(Class<T> clazz, ToStringConverter<T> converter);
 
-    <T> Formatter registerObjectConverter(Class<T> clazz, ObjectConverter<T> objectConverter);
+    <T> Formatter registerToPropertiesConverter(Class<T> clazz, ToPropertiesConverter<T> converter);
 
     String format(TimeProvider timeProvider, Level level, String eventId);
 
@@ -22,7 +22,7 @@ public interface Formatter {
 
     String format(TimeProvider timeProvider, Level level, String eventId, String key, Object value);
 
-    String format(TimeProvider timeProvider, Level level, String eventId, Object... otherFields);
+    String format(TimeProvider timeProvider, Level level, String eventId, Object... objs);
 
     String format(TimeProvider timeProvider, Level level, long spanId, String eventId);
 
@@ -30,5 +30,5 @@ public interface Formatter {
 
     String format(TimeProvider timeProvider, Level level, long spanId, String eventId, String key, Object value);
 
-    String format(TimeProvider timeProvider, Level level, long spanId, String eventId, Object... otherFields);
+    String format(TimeProvider timeProvider, Level level, long spanId, String eventId, Object... objs);
 }
