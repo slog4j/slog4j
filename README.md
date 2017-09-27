@@ -68,6 +68,9 @@ start using it immediately as it requires no other changes to existing logging c
 Instead of the standard SLF4J Logger, you must instantiate the SLog4j Logger:
 
 ```java
+    import org.slog4j.SLogger;
+    import org.slog4j.SLoggerFactory;
+    
     private SLogger slog = SLoggerFactory.getLogger(MyClass.class);
 ```
 
@@ -80,20 +83,20 @@ The **SLogger** interface is very simple and offers these basic methods:
         void error(long spanId, String eventId);
         void error(long spanId, String eventId, Object obj);
         void error(long spanId, String eventId, String key, Object value);
-        void error(long spanId, String eventId, Object... fields);
+        void error(long spanId, String eventId, Object... objs);
 
         // level=ERROR, untraced events
         void error(String eventId);
         void error(String eventId, Object obj);
         void error(String eventId, String key, Object value);
-        void error(String eventId, Object... fields);
+        void error(String eventId, Object... objs);
 
         // same for remaining WARN, INFO, DEBUG, and TRACE levels
         // ...
     }
 ```
 
-## Automatic convertions
+## Automatic conversions
 
 Depending on the context, object can be handled as simple or complex.
 

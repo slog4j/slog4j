@@ -26,7 +26,7 @@ class SLoggerSpec extends Specification {
     }
 
     def setupSpec() {
-        textFormatter.registerObjectConverter(Person, { Person p ->
+        textFormatter.registerToPropertiesConverter(Person, { Person p ->
             [firstName: p.firstName, lastName: p.lastName, age: p.age].entrySet()
         })
     }
@@ -39,7 +39,7 @@ class SLoggerSpec extends Specification {
             def rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as ch.qos.logback.classic.Logger
             rootLogger.addAppender(appender)
             rootLogger.setLevel(Level.TRACE)
-            def slog = SLoggerFactory.getLogger(rootLogger).withFormatter(textFormatter).withTimeProvider(BROKEN_CLOCK)
+            def slog = SLoggerFactory.getLogger(rootLogger, textFormatter, BROKEN_CLOCK)
             def spanId = 299792458L
 
         when:

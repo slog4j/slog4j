@@ -11,20 +11,20 @@ import org.slog4j.time.TimeProvider;
 import java.util.Map;
 
 public class TextFormatter extends BaseFormatter {
-    private static final char FIELD_SEP      = ' ';
+    private static final char PROPERTY_SEP   = ' ';
     private static final char KV_SEP         = '=';
     private static final char OPEN_SUBFIELD  = '[';
     private static final char CLOSE_SUBFIELD = ']';
 
     public static final TextFormatter INSTANCE = new TextFormatter(true);
 
-    private PropertyFormat timeFormat  = PropertyFormat.KEY_VALUE;
-    private PropertyFormat levelFormat = PropertyFormat.KEY_VALUE;
+    private PropertyFormat timeFormat  = PropertyFormat.PROPERTY;
+    private PropertyFormat levelFormat = PropertyFormat.PROPERTY;
 
     public enum PropertyFormat {
         OMIT,
         VALUE_ONLY,
-        KEY_VALUE
+        PROPERTY
     }
 
     public TextFormatter() {
@@ -44,53 +44,48 @@ public class TextFormatter extends BaseFormatter {
         return this;
     }
 
-    public TextFormatter omitCommonProperties() {
-        return timeFormat(PropertyFormat.OMIT)
-            .levelFormat(PropertyFormat.OMIT);
-    }
-
-    public TextFormatter valueOnlyCommonProperties() {
-        return timeFormat(PropertyFormat.VALUE_ONLY)
-            .levelFormat(PropertyFormat.VALUE_ONLY);
+    public TextFormatter commonPropertiesFormat(PropertyFormat format) {
+        return timeFormat(format)
+            .levelFormat(format);
     }
 
     @Override
     public String format(TimeProvider timeProvider, Level level, String eventId) {
         val sb = StrBuilderFactory.get();
-        appendCommonFields(sb, level, timeProvider);
-        return appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId).toString();
+        appendCommonProperties(sb, level, timeProvider);
+        return appendText(sb.appendSeparator(PROPERTY_SEP).append(eventIdLabel()).append(KV_SEP), eventId).toString();
     }
 
     @Override
     public String format(TimeProvider timeProvider, Level level, String eventId, Object obj) {
         val sb = StrBuilderFactory.get();
-        appendCommonFields(sb, level, timeProvider);
-        appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId);
-        return appendComplexObject(sb.append(FIELD_SEP), obj).toString();
+        appendCommonProperties(sb, level, timeProvider);
+        appendText(sb.appendSeparator(PROPERTY_SEP).append(eventIdLabel()).append(KV_SEP), eventId);
+        return appendComplexObject(sb.append(PROPERTY_SEP), obj).toString();
     }
 
     @Override
     public String format(TimeProvider timeProvider, Level level, String eventId, String key, Object value) {
         val sb = StrBuilderFactory.get();
-        appendCommonFields(sb, level, timeProvider);
-        appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId);
-        return appendValue(sb.append(FIELD_SEP).append(normalizeKey(key)).append(KV_SEP), value).toString();
+        appendCommonProperties(sb, level, timeProvider);
+        appendText(sb.appendSeparator(PROPERTY_SEP).append(eventIdLabel()).append(KV_SEP), eventId);
+        return appendValue(sb.append(PROPERTY_SEP).append(normalizeKey(key)).append(KV_SEP), value).toString();
     }
 
     @Override
-    public String format(TimeProvider timeProvider, Level level, String eventId, Object... otherFields) {
+    public String format(TimeProvider timeProvider, Level level, String eventId, Object... objs) {
         val sb = StrBuilderFactory.get();
-        appendCommonFields(sb, level, timeProvider);
-        appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId);
-        return appendFields(sb, otherFields).toString();
+        appendCommonProperties(sb, level, timeProvider);
+        appendText(sb.appendSeparator(PROPERTY_SEP).append(eventIdLabel()).append(KV_SEP), eventId);
+        return appendObjects(sb, objs).toString();
     }
 
     @Override
     public String format(TimeProvider timeProvider, Level level, long spanId, String eventId) {
         val sb = StrBuilderFactory.get();
-        appendCommonFields(sb, level, timeProvider);
-        return appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId)
-            .append(FIELD_SEP)
+        appendCommonProperties(sb, level, timeProvider);
+        return appendText(sb.appendSeparator(PROPERTY_SEP).append(eventIdLabel()).append(KV_SEP), eventId)
+            .append(PROPERTY_SEP)
             .append(spanIdLabel()).append(KV_SEP)
             .append(LongIdConverter.convertToString(spanId)).toString();
     }
@@ -98,37 +93,37 @@ public class TextFormatter extends BaseFormatter {
     @Override
     public String format(TimeProvider timeProvider, Level level, long spanId, String eventId, Object obj) {
         val sb = StrBuilderFactory.get();
-        appendCommonFields(sb, level, timeProvider);
-        appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId)
-            .append(FIELD_SEP)
+        appendCommonProperties(sb, level, timeProvider);
+        appendText(sb.appendSeparator(PROPERTY_SEP).append(eventIdLabel()).append(KV_SEP), eventId)
+            .append(PROPERTY_SEP)
             .append(spanIdLabel()).append(KV_SEP)
             .append(LongIdConverter.convertToString(spanId));
-        return appendComplexObject(sb.append(FIELD_SEP), obj).toString();
+        return appendComplexObject(sb.append(PROPERTY_SEP), obj).toString();
     }
 
     @Override
     public String format(TimeProvider timeProvider, Level level, long spanId, String eventId, String key, Object value) {
         val sb = StrBuilderFactory.get();
-        appendCommonFields(sb, level, timeProvider);
-        appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId)
-            .append(FIELD_SEP)
+        appendCommonProperties(sb, level, timeProvider);
+        appendText(sb.appendSeparator(PROPERTY_SEP).append(eventIdLabel()).append(KV_SEP), eventId)
+            .append(PROPERTY_SEP)
             .append(spanIdLabel()).append(KV_SEP)
             .append(LongIdConverter.convertToString(spanId));
-        return appendValue(sb.appendSeparator(FIELD_SEP).append(normalizeKey(key)).append(KV_SEP), value).toString();
+        return appendValue(sb.appendSeparator(PROPERTY_SEP).append(normalizeKey(key)).append(KV_SEP), value).toString();
     }
 
     @Override
-    public String format(TimeProvider timeProvider, Level level, long spanId, String eventId, Object... otherFields) {
+    public String format(TimeProvider timeProvider, Level level, long spanId, String eventId, Object... objs) {
         val sb = StrBuilderFactory.get();
-        appendCommonFields(sb, level, timeProvider);
-        appendText(sb.appendSeparator(FIELD_SEP).append(eventIdLabel()).append(KV_SEP), eventId)
-            .append(FIELD_SEP)
+        appendCommonProperties(sb, level, timeProvider);
+        appendText(sb.appendSeparator(PROPERTY_SEP).append(eventIdLabel()).append(KV_SEP), eventId)
+            .append(PROPERTY_SEP)
             .append(spanIdLabel()).append(KV_SEP)
             .append(LongIdConverter.convertToString(spanId));
-        return appendFields(sb, otherFields).toString();
+        return appendObjects(sb, objs).toString();
     }
 
-    private void appendCommonFields(StrBuilder sb, Level level, TimeProvider timeProvider) {
+    private void appendCommonProperties(StrBuilder sb, Level level, TimeProvider timeProvider) {
         switch (timeFormat) {
             case OMIT:
                 break;
@@ -137,7 +132,7 @@ public class TextFormatter extends BaseFormatter {
                 sb.append(FORMAT_ISO8601_MILLIS.format(timeProvider.currentTimeMillis()));
                 break;
 
-            case KEY_VALUE:
+            case PROPERTY:
                 sb.append(TIME_LABEL).append(KV_SEP)
                     .append(FORMAT_ISO8601_MILLIS.format(timeProvider.currentTimeMillis()));
                 break;
@@ -147,17 +142,17 @@ public class TextFormatter extends BaseFormatter {
                 break;
 
             case VALUE_ONLY:
-                sb.appendSeparator(FIELD_SEP).append(level.toString());
+                sb.appendSeparator(PROPERTY_SEP).append(level.toString());
                 break;
 
-            case KEY_VALUE:
-                sb.appendSeparator(FIELD_SEP).append(LEVEL_LABEL).append(KV_SEP).append(level.toString());
+            case PROPERTY:
+                sb.appendSeparator(PROPERTY_SEP).append(LEVEL_LABEL).append(KV_SEP).append(level.toString());
                 break;
         }
     }
 
     private static StrBuilder appendText(StrBuilder sb, String str) {
-        boolean mustQuote = str.indexOf(FIELD_SEP) >= 0;
+        boolean mustQuote = str.indexOf(PROPERTY_SEP) >= 0;
         if (mustQuote) {
             sb.append('\'');
         }
@@ -195,32 +190,32 @@ public class TextFormatter extends BaseFormatter {
         "unchecked",
         "squid:ForLoopCounterChangedCheck"  // "for" loop stop conditions should be invariant
     })
-    private StrBuilder appendFields(StrBuilder sb, Object[] fields) {
-        for (int i = 0; i < fields.length; i++) {
-            Object field = fields[i];
-            if (field == null) {
+    private StrBuilder appendObjects(StrBuilder sb, Object[] objs) {
+        for (int i = 0; i < objs.length; i++) {
+            Object obj = objs[i];
+            if (obj == null) {
                 // silently ignore null keys
                 continue;
             }
-            if (field instanceof String) {
-                String key = (String) field;
-                sb.append(FIELD_SEP).append(normalizeKey(key)).append(KV_SEP);
-                if ((i + 1) != fields.length) {
-                    Object obj = fields[++i];
-                    appendValue(sb, obj);
+            if (obj instanceof String) {
+                String key = (String) obj;
+                sb.append(PROPERTY_SEP).append(normalizeKey(key)).append(KV_SEP);
+                if ((i + 1) != objs.length) {
+                    Object value = objs[++i];
+                    appendValue(sb, value);
                 } else {
                     sb.append(MISSING_VALUE_PLACEHOLDER);
                 }
             } else {
-                appendComplexObject(sb.append(FIELD_SEP), field);
+                appendComplexObject(sb.append(PROPERTY_SEP), obj);
             }
         }
         return sb;
     }
 
     private static String normalizeKey(String key) {
-        if (key.indexOf(FIELD_SEP) >= 0) {
-            return StringUtils.replaceChars(key, FIELD_SEP, '_');
+        if (key.indexOf(PROPERTY_SEP) >= 0) {
+            return StringUtils.replaceChars(key, PROPERTY_SEP, '_');
         }
         return key;
     }
@@ -252,22 +247,22 @@ public class TextFormatter extends BaseFormatter {
 
     @SuppressWarnings("unchecked")
     private StrBuilder appendComplexObject(StrBuilder sb, Object obj) {
-        val objectConverter = getObjectConverter(obj.getClass());
-        if (objectConverter != null) {
-            return appendFields(sb, objectConverter.convert(obj));
+        val converter = propertiesConverter(obj.getClass());
+        if (converter != null) {
+            return appendProperties(sb, converter.convert(obj));
         }
         return sb.append(obj.getClass().getSimpleName())
             .append('#')
             .append(NO_CONVERTER_PLACEHOLDER);
     }
 
-    private StrBuilder appendFields(StrBuilder sb, Iterable<Map.Entry<?, Object>> fields) {
+    private StrBuilder appendProperties(StrBuilder sb, Iterable<Map.Entry<?, Object>> props) {
         int loopIndex = 0;
-        for (Map.Entry<?, Object> entry : fields) {
-            sb.appendSeparator(FIELD_SEP, loopIndex++)
-                .append(normalizeKey(entry.getKey().toString()))
+        for (Map.Entry<?, Object> prop : props) {
+            sb.appendSeparator(PROPERTY_SEP, loopIndex++)
+                .append(normalizeKey(prop.getKey().toString()))
                 .append(KV_SEP);
-            appendValue(sb, entry.getValue());
+            appendValue(sb, prop.getValue());
         }
         return sb;
     }

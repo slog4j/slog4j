@@ -3,7 +3,6 @@ package org.slog4j;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.UtilityClass;
-import lombok.experimental.Wither;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -16,19 +15,30 @@ import org.slog4j.time.TimeProviders;
 public class SLoggerFactory {
 
     public static SLogger getLogger(Class<?> clazz) {
-        return getLogger(LoggerFactory.getLogger(clazz));
+        return getLogger(clazz, TextFormatter.INSTANCE, TimeProviders.system());
     }
 
-    public static SLogger getLogger(Logger log) {
-        return new Slf4jSLogger(log, TextFormatter.INSTANCE, TimeProviders.SYSTEM);
+    public static SLogger getLogger(Class<?> clazz, Formatter formatter) {
+        return getLogger(clazz, formatter, TimeProviders.system());
+
+    }
+
+    public static SLogger getLogger(Class<?> clazz, TimeProvider timeProvider) {
+        return getLogger(clazz, TextFormatter.INSTANCE, timeProvider);
+    }
+
+    public static SLogger getLogger(Class<?> clazz, Formatter formatter, TimeProvider timeProvider) {
+        return getLogger(LoggerFactory.getLogger(clazz), formatter, timeProvider);
+    }
+
+    public static SLogger getLogger(Logger log, Formatter formatter, TimeProvider timeProvider) {
+        return new Slf4jSLogger(log, formatter, timeProvider);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class Slf4jSLogger implements SLogger {
         private final Logger       log;
-        @Wither
         private final Formatter    formatter;
-        @Wither
         private final TimeProvider timeProvider;
 
         @Override
@@ -53,9 +63,9 @@ public class SLoggerFactory {
         }
 
         @Override
-        public void error(long spanId, String eventId, Object... fields) {
+        public void error(long spanId, String eventId, Object... objs) {
             if (log.isErrorEnabled()) {
-                log.error(formatter.format(timeProvider, Level.ERROR, spanId, eventId, fields));
+                log.error(formatter.format(timeProvider, Level.ERROR, spanId, eventId, objs));
             }
         }
 
@@ -81,9 +91,9 @@ public class SLoggerFactory {
         }
 
         @Override
-        public void error(String eventId, Object... fields) {
+        public void error(String eventId, Object... objs) {
             if (log.isErrorEnabled()) {
-                log.error(formatter.format(timeProvider, Level.ERROR, eventId, fields));
+                log.error(formatter.format(timeProvider, Level.ERROR, eventId, objs));
             }
         }
 
@@ -109,9 +119,9 @@ public class SLoggerFactory {
         }
 
         @Override
-        public void warn(long spanId, String eventId, Object... fields) {
+        public void warn(long spanId, String eventId, Object... objs) {
             if (log.isWarnEnabled()) {
-                log.warn(formatter.format(timeProvider, Level.WARN, spanId, eventId, fields));
+                log.warn(formatter.format(timeProvider, Level.WARN, spanId, eventId, objs));
             }
         }
 
@@ -137,9 +147,9 @@ public class SLoggerFactory {
         }
 
         @Override
-        public void warn(String eventId, Object... fields) {
+        public void warn(String eventId, Object... objs) {
             if (log.isWarnEnabled()) {
-                log.warn(formatter.format(timeProvider, Level.WARN, eventId, fields));
+                log.warn(formatter.format(timeProvider, Level.WARN, eventId, objs));
             }
         }
 
@@ -165,9 +175,9 @@ public class SLoggerFactory {
         }
 
         @Override
-        public void info(long spanId, String eventId, Object... fields) {
+        public void info(long spanId, String eventId, Object... objs) {
             if (log.isInfoEnabled()) {
-                log.info(formatter.format(timeProvider, Level.INFO, spanId, eventId, fields));
+                log.info(formatter.format(timeProvider, Level.INFO, spanId, eventId, objs));
             }
         }
 
@@ -193,9 +203,9 @@ public class SLoggerFactory {
         }
 
         @Override
-        public void info(String eventId, Object... fields) {
+        public void info(String eventId, Object... objs) {
             if (log.isInfoEnabled()) {
-                log.info(formatter.format(timeProvider, Level.INFO, eventId, fields));
+                log.info(formatter.format(timeProvider, Level.INFO, eventId, objs));
             }
         }
 
@@ -221,9 +231,9 @@ public class SLoggerFactory {
         }
 
         @Override
-        public void debug(long spanId, String eventId, Object... fields) {
+        public void debug(long spanId, String eventId, Object... objs) {
             if (log.isDebugEnabled()) {
-                log.debug(formatter.format(timeProvider, Level.DEBUG, spanId, eventId, fields));
+                log.debug(formatter.format(timeProvider, Level.DEBUG, spanId, eventId, objs));
             }
         }
 
@@ -249,9 +259,9 @@ public class SLoggerFactory {
         }
 
         @Override
-        public void debug(String eventId, Object... fields) {
+        public void debug(String eventId, Object... objs) {
             if (log.isDebugEnabled()) {
-                log.debug(formatter.format(timeProvider, Level.DEBUG, eventId, fields));
+                log.debug(formatter.format(timeProvider, Level.DEBUG, eventId, objs));
             }
         }
 
@@ -277,9 +287,9 @@ public class SLoggerFactory {
         }
 
         @Override
-        public void trace(long spanId, String eventId, Object... fields) {
+        public void trace(long spanId, String eventId, Object... objs) {
             if (log.isTraceEnabled()) {
-                log.trace(formatter.format(timeProvider, Level.TRACE, spanId, eventId, fields));
+                log.trace(formatter.format(timeProvider, Level.TRACE, spanId, eventId, objs));
             }
         }
 
@@ -305,9 +315,9 @@ public class SLoggerFactory {
         }
 
         @Override
-        public void trace(String eventId, Object... fields) {
+        public void trace(String eventId, Object... objs) {
             if (log.isTraceEnabled()) {
-                log.trace(formatter.format(timeProvider, Level.TRACE, eventId, fields));
+                log.trace(formatter.format(timeProvider, Level.TRACE, eventId, objs));
             }
         }
     }
