@@ -1,4 +1,4 @@
-package org.slog4j;
+package org.slog4j.format;
 
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -6,6 +6,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrBuilder;
 import org.slf4j.event.Level;
+import org.slog4j.time.TimeProvider;
 
 import java.util.Map;
 

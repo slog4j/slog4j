@@ -1,5 +1,8 @@
 package org.slog4j;
 
+import org.slog4j.format.Formatter;
+import org.slog4j.time.TimeProvider;
+
 /**
  * A structured log message always adheres to the following rules:
  *
