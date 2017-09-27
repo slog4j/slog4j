@@ -27,8 +27,8 @@ public abstract class BaseFormatter implements Formatter {
     // TextFormatter assumes the format don't have spaces and no special characters that requires quoting
     static final FastDateFormat FORMAT_ISO8601_MILLIS = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
-    private final StringConvert               stringConvert    = new StringConvert(true);
-    private final Map<Class, ObjectConverter> objectConverters = new ClassMap<ObjectConverter>();
+    private final StringConvert                     toStringConverters     = new StringConvert(true);
+    private final Map<Class, ToPropertiesConverter> toPropertiesConverters = new ClassMap<ToPropertiesConverter>();
 
     @Getter(AccessLevel.PROTECTED)
     @Accessors(fluent = true)
@@ -64,22 +64,22 @@ public abstract class BaseFormatter implements Formatter {
     }
 
     private void registerAdditionalConverters() {
-        registerValueConverter(LongId.class, new LongIdConverter());
-        registerValueConverter(InetSocketAddress.class, new InetSocketAddressConverter());
-        registerObjectConverter(Map.class, new MapConverter());
+        registerToStringConverter(LongId.class, new LongIdConverter());
+        registerToStringConverter(InetSocketAddress.class, new InetSocketAddressConverter());
+        registerToPropertiesConverter(Map.class, new MapConverter());
     }
 
     @Override
-    public <T> Formatter registerValueConverter(Class<T> clazz, StringConverter<T> converter) {
+    public <T> Formatter registerToStringConverter(Class<T> clazz, StringConverter<T> converter) {
         checkIfMutable();
-        stringConvert.register(clazz, converter);
+        toStringConverters.register(clazz, converter);
         return this;
     }
 
     @Override
-    public <T> Formatter registerValueConverter(Class<T> clazz, final ToStringConverter<T> valueConverter) {
+    public <T> Formatter registerToStringConverter(Class<T> clazz, final ToStringConverter<T> converter) {
         checkIfMutable();
-        registerValueConverter(clazz, new StringConverter<T>() {
+        registerToStringConverter(clazz, new StringConverter<T>() {
             @Override
             public T convertFromString(Class<? extends T> cls, String str) {
                 throw new UnsupportedOperationException();
@@ -87,25 +87,25 @@ public abstract class BaseFormatter implements Formatter {
 
             @Override
             public String convertToString(T object) {
-                return valueConverter.convertToString(object);
+                return converter.convertToString(object);
             }
         });
         return this;
     }
 
     @Override
-    public <T> Formatter registerObjectConverter(Class<T> clazz, ObjectConverter<T> objectConverter) {
+    public <T> Formatter registerToPropertiesConverter(Class<T> clazz, ToPropertiesConverter<T> converter) {
         checkIfMutable();
-        objectConverters.put(clazz, objectConverter);
+        toPropertiesConverters.put(clazz, converter);
         return this;
     }
 
     protected String convertToString(Object obj) {
-        return stringConvert.convertToString(obj);
+        return toStringConverters.convertToString(obj);
     }
 
-    protected ObjectConverter getObjectConverter(Class<?> clazz) {
-        return objectConverters.get(clazz);
+    protected ToPropertiesConverter propertiesConverter(Class<?> clazz) {
+        return toPropertiesConverters.get(clazz);
     }
 
     private void checkIfMutable() {
@@ -164,7 +164,7 @@ public abstract class BaseFormatter implements Formatter {
         }
     }
 
-    private static final class MapConverter implements ObjectConverter<Map> {
+    private static final class MapConverter implements ToPropertiesConverter<Map> {
 
         @Override
         @SuppressWarnings("unchecked")
