@@ -5,6 +5,9 @@ import ch.qos.logback.classic.spi.LoggingEvent
 import ch.qos.logback.core.Appender
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.slog4j.format.TextFormatter
+import org.slog4j.time.TimeProvider
+import org.slog4j.time.TimeProviders
 import spock.lang.Shared
 import spock.lang.Specification
 

@@ -1,4 +1,4 @@
-package org.slog4j;
+package org.slog4j.format;
 
 import java.util.Map;
 
