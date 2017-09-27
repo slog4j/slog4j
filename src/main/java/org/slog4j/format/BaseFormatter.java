@@ -10,8 +10,8 @@ import org.joda.convert.ToStringConverter;
 import org.slog4j.types.LongId;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class BaseFormatter implements Formatter {
 
@@ -114,7 +114,7 @@ public abstract class BaseFormatter implements Formatter {
         }
     }
 
-    private static final class ClassMap<T> extends HashMap<Class, T> {
+    private static final class ClassMap<T> extends ConcurrentHashMap<Class, T> {
         @Override
         public T get(Object key) {
             assert key != null;
