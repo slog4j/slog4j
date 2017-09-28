@@ -3,7 +3,6 @@ package org.slog4j.format;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrBuilder;
 import org.slf4j.event.Level;
 import org.slog4j.time.TimeProvider;
@@ -69,7 +68,7 @@ public class TextFormatter extends BaseFormatter {
         val sb = StrBuilderFactory.get();
         appendCommonProperties(sb, level, timeProvider);
         appendText(sb.appendSeparator(PROPERTY_SEP).append(eventIdLabel()).append(KV_SEP), eventId);
-        return appendValue(sb.append(PROPERTY_SEP).append(normalizeKey(key)).append(KV_SEP), value).toString();
+        return appendValue(sb.append(PROPERTY_SEP).append(key).append(KV_SEP), value).toString();
     }
 
     @Override
@@ -109,7 +108,7 @@ public class TextFormatter extends BaseFormatter {
             .append(PROPERTY_SEP)
             .append(spanIdLabel()).append(KV_SEP)
             .append(LongIdConverter.convertToString(spanId));
-        return appendValue(sb.appendSeparator(PROPERTY_SEP).append(normalizeKey(key)).append(KV_SEP), value).toString();
+        return appendValue(sb.appendSeparator(PROPERTY_SEP).append(key).append(KV_SEP), value).toString();
     }
 
     @Override
@@ -199,7 +198,7 @@ public class TextFormatter extends BaseFormatter {
             }
             if (obj instanceof String) {
                 String key = (String) obj;
-                sb.append(PROPERTY_SEP).append(normalizeKey(key)).append(KV_SEP);
+                sb.append(PROPERTY_SEP).append(key).append(KV_SEP);
                 if ((i + 1) != objs.length) {
                     Object value = objs[++i];
                     appendValue(sb, value);
@@ -211,13 +210,6 @@ public class TextFormatter extends BaseFormatter {
             }
         }
         return sb;
-    }
-
-    private static String normalizeKey(String key) {
-        if (key.indexOf(PROPERTY_SEP) >= 0) {
-            return StringUtils.replaceChars(key, PROPERTY_SEP, '_');
-        }
-        return key;
     }
 
     @SuppressWarnings("squid:S2259")    // Null pointers should not be dereferenced
@@ -260,7 +252,7 @@ public class TextFormatter extends BaseFormatter {
         int loopIndex = 0;
         for (Map.Entry<?, Object> prop : props) {
             sb.appendSeparator(PROPERTY_SEP, loopIndex++)
-                .append(normalizeKey(prop.getKey().toString()))
+                .append(prop.getKey().toString())
                 .append(KV_SEP);
             appendValue(sb, prop.getValue());
         }
