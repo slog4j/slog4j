@@ -243,7 +243,7 @@ public class TextFormatter extends BaseFormatter {
         if (converter != null) {
             return appendProperties(sb, converter.convert(obj));
         }
-        return sb.append(obj.getClass().getSimpleName())
+        return sb.append(obj.getClass().getName())
             .append('#')
             .append(NO_CONVERTER_PLACEHOLDER);
     }
