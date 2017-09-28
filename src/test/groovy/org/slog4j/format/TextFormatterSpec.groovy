@@ -30,8 +30,16 @@ class TextFormatterSpec extends Specification {
         int   bodyLen
     }
 
+    static class Person {
+        String firstName
+        String lastName
+        int    age
+    }
+
     @Shared
     TextFormatter textFormatter = new TextFormatter()
+    @Shared
+    def           person        = new Person(firstName: 'John', lastName: 'Smith', age: 40)
 
     def setupSpec() {
         textFormatter.commonPropertiesFormat(TextFormatter.PropertyFormat.OMIT).eventIdLabel('event')
@@ -71,14 +79,14 @@ class TextFormatterSpec extends Specification {
             msg == expectedMessage
 
         where:
-            eventId     | spanId              | props                                                                               || expectedMessage
-            'respSent'  | 0x1355932dc9fb94cfL | ['response', new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453)] || 'event=respSent spanId=1355932dc9fb94cf response=[clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453]'
+            eventId     | spanId              | props                                                                                                                                                               || expectedMessage
+            'respSent'  | 0x1355932dc9fb94cfL | ['response', new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453)]                                                                                 || 'event=respSent spanId=1355932dc9fb94cf response=[clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453]'
             'msgRecv'   | 0x1b2796bac997c13eL | ['from', new InetSocketAddress('localhost', 9000)]                                                                                                                  || 'event=msgRecv spanId=1b2796bac997c13e from=127.0.0.1:9000'
             'newClient' | 0xfc819b4efe1fc078L | ['port', 4433, 'from', new InetSocketAddress('10.34.21.34', 49694), 'protocol', 'tls1.1', 'cipherSuite', CipherSuite.SSL_RSA_WITH_RC4_128_SHA, 'resumption', false] || 'event=newClient spanId=fc819b4efe1fc078 port=4433 from=10.34.21.34:49694 protocol=tls1.1 cipherSuite=SSL_RSA_WITH_RC4_128_SHA resumption=false'
     }
 
 
-    def 'value-only common properties'() {
+    def 'common properties printed in value-only format'() {
         given:
             def formatter = new TextFormatter().commonPropertiesFormat(TextFormatter.PropertyFormat.VALUE_ONLY)
 
@@ -87,5 +95,41 @@ class TextFormatterSpec extends Specification {
 
         then:
             msg == "$BROKEN_CLOCK_TIME TRACE evt=start aKey=aValue"
+    }
+
+
+    def 'property with null value'() {
+        given:
+            def formatter = new TextFormatter()
+
+        when:
+            def msg = formatter.format(BROKEN_CLOCK, Level.INFO, 'start', 'aKey', null)
+
+        then:
+            msg == "time=$BROKEN_CLOCK_TIME level=INFO evt=start aKey=_NULL_"
+    }
+
+
+    def 'property with non-convertible value'() {
+        given:
+            def formatter = new TextFormatter()
+
+        when:
+            def msg = formatter.format(BROKEN_CLOCK, Level.INFO, 'start', 'aKey', person)
+
+        then:
+            msg == "time=$BROKEN_CLOCK_TIME level=INFO evt=start aKey=[org.slog4j.format.TextFormatterSpec\$Person#_NO_CONVERTER_]"
+    }
+
+
+    def 'non-convertible object'() {
+        given:
+            def formatter = new TextFormatter()
+
+        when:
+            def msg = formatter.format(BROKEN_CLOCK, Level.INFO, 'start', person)
+
+        then:
+            msg == "time=$BROKEN_CLOCK_TIME level=INFO evt=start org.slog4j.format.TextFormatterSpec\$Person#_NO_CONVERTER_"
     }
 }
