@@ -1,10 +1,6 @@
 package org.slog4j
 
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.spi.LoggingEvent
-import ch.qos.logback.core.Appender
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.slog4j.format.TextFormatter
 import org.slog4j.time.TimeProvider
 import org.slog4j.time.TimeProviders
@@ -39,12 +35,9 @@ class SLoggerSpec extends Specification {
 
         given:
             def ucLevel = level.toUpperCase()
-            def enumLevel = Level.valueOf(ucLevel)
-            def appender = Mock(Appender)
-            def rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as ch.qos.logback.classic.Logger
-            rootLogger.addAppender(appender)
-            rootLogger.setLevel(Level.TRACE)
-            def slog = SLoggerFactory.getLogger(rootLogger, textFormatter, BROKEN_CLOCK)
+            def log = Mock(Logger)
+            log."is${level.capitalize()}Enabled"() >> true
+            def slog = SLoggerFactory.getLogger(log, textFormatter, BROKEN_CLOCK)
             def spanId = 299792458L
 
         when:
@@ -63,48 +56,18 @@ class SLoggerSpec extends Specification {
 
         then:
             // untraced events
-            1 * appender.doAppend(_) >> { LoggingEvent e ->
-                assert e.level == enumLevel
-                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}NakedEvent"
-            }
-            1 * appender.doAppend(_) >> { LoggingEvent e ->
-                assert e.level == enumLevel
-                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithAnObject firstName=John lastName=Smith age=40"
-            }
-            1 * appender.doAppend(_) >> { LoggingEvent e ->
-                assert e.level == enumLevel
-                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithKeySimpleValue aKey=aValue"
-            }
-            1 * appender.doAppend(_) >> { LoggingEvent e ->
-                assert e.level == enumLevel
-                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithKeyComplexValue person=[firstName=John lastName=Smith age=40]"
-            }
-            1 * appender.doAppend(_) >> { LoggingEvent e ->
-                assert e.level == enumLevel
-                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithProps firstName=John lastName=Smith age=40 aKey=aValue"
-            }
+            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}NakedEvent")
+            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithAnObject firstName=John lastName=Smith age=40")
+            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithKeySimpleValue aKey=aValue")
+            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithKeyComplexValue person=[firstName=John lastName=Smith age=40]")
+            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithProps firstName=John lastName=Smith age=40 aKey=aValue")
 
             // traced events
-            1 * appender.doAppend(_) >> { LoggingEvent e ->
-                assert e.level == enumLevel
-                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}NakedEvent spanId=0000000011de784a"
-            }
-            1 * appender.doAppend(_) >> { LoggingEvent e ->
-                assert e.level == enumLevel
-                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithAnObject spanId=0000000011de784a firstName=John lastName=Smith age=40"
-            }
-            1 * appender.doAppend(_) >> { LoggingEvent e ->
-                assert e.level == enumLevel
-                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithKeySimpleValue spanId=0000000011de784a aKey=aValue"
-            }
-            1 * appender.doAppend(_) >> { LoggingEvent e ->
-                assert e.level == enumLevel
-                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithKeyComplexValue spanId=0000000011de784a person=[firstName=John lastName=Smith age=40]"
-            }
-            1 * appender.doAppend(_) >> { LoggingEvent e ->
-                assert e.level == enumLevel
-                assert e.formattedMessage == "time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithProps spanId=0000000011de784a firstName=John lastName=Smith age=40 aKey=aValue"
-            }
+            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}NakedEvent spanId=0000000011de784a")
+            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithAnObject spanId=0000000011de784a firstName=John lastName=Smith age=40")
+            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithKeySimpleValue spanId=0000000011de784a aKey=aValue")
+            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithKeyComplexValue spanId=0000000011de784a person=[firstName=John lastName=Smith age=40]")
+            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithProps spanId=0000000011de784a firstName=John lastName=Smith age=40 aKey=aValue")
 
         where:
             level << ['error', 'warn', 'info', 'debug', 'trace']

@@ -20,7 +20,6 @@ public class SLoggerFactory {
 
     public static SLogger getLogger(Class<?> clazz, Formatter formatter) {
         return getLogger(clazz, formatter, TimeProviders.system());
-
     }
 
     public static SLogger getLogger(Class<?> clazz, TimeProvider timeProvider) {
