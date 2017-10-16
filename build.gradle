@@ -33,6 +33,7 @@ dependencies {
     )
 
     implementation(
+        // 3.5 is the latest version that supports Java 6.
         [group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'],
     )
 
@@ -42,8 +43,6 @@ dependencies {
 }
 
 tasks.withType(Test) {
-    jvmArgs '-Duser.timezone=America/Sao_Paulo'
-
     // show standard out and standard error of the test JVM(s) on the console
     testLogging {
         events 'started', 'passed', 'skipped', 'failed'
@@ -68,7 +67,7 @@ bintray {
         licenses = ['MIT']
         vcsUrl = 'https://github.com/eliezio/slog4j.git'
         githubRepo = 'eliezio/slog4j'
-        githubReleaseNotesFile = 'README.md'
+        githubReleaseNotesFile = 'README.adoc'
         version {
             name = project.version
             desc = "SLog4j $project.version final"
