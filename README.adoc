@@ -1,0 +1,216 @@
+= SLog4j
+Structured Event Logging for Java.
+:source-language: java
+:source-highlighter: pygments
+
+:uri-org: https://github.com/eliezio
+:uri-repo: {uri-org}/slog4j
+:uri-project: {uri-repo}
+
+:release-version: 0.2.0
+
+Allows you to stop logging prose and to start logging structured events.
+
+image:https://img.shields.io/github/license/eliezio/slog4j.svg[License, link="https://opensource.org/licenses/MIT"]
+image:https://travis-ci.org/eliezio/slog4j.svg?branch=master[Build, link="https://travis-ci.org/eliezio/slog4j"]
+image:https://coveralls.io/repos/github/eliezio/slog4j/badge.svg?branch=master[Coverage, link="https://coveralls.io/github/eliezio/slog4j?branch=master"]
+image:https://api.bintray.com/packages/eliezio/maven/slog4j/images/download.svg[Download, link="https://bintray.com/eliezio/maven/slog4j/_latestVersion"]
+image:https://img.shields.io/gitter/room/eliezio/slog4j.svg[Chat, link="https://gitter.im/eliezio/slog4j"]
+
+== The Shifting Purpose of Logging
+
+Historically, logging messages were supposed to be consumed by humans, and its main purpose were to
+aid the developer on a debugging process.
+Past the DevOps evolution and the increase on scale of applications, machines are nowadays the major consumers of
+logging messages.
+
+So why are we still logging messages like these:
+
+    Processed 23 flight records for flight UA1234 for airline United
+
+Instead of:
+
+    evt=FLIGHT_RECORDS_PROCESSED recordCount=23 airlineCode=UA flightNumber=1234 airlineName=United
+
+Both messages convey the same information but the later format has the following advantages:
+
+1. It's very easy to parse, avoiding complex and cumbersome regular expressions to extract semantics from them;
+2. It's much easier to maintain. One can easily extend it with additional information _without_ breaking the parser.
+
+== Quick-start
+
+SLog4j is implemented itself on top of SLF4J and mimics its API.
+Therefore any application that already uses SLF4J can start using SLog4j very easily with a few minor modifications.
+
+=== Step 1: add the SLog4j dependency
+
+SLog4j requires Java 1.6+ and is available from both JCenter and Maven Central repositories.
+
+==== Gradle
+
+[source,groovy,indent=0,subs=attributes+]
+----
+    dependencies {
+        // ...
+        compile 'org.slog4j:slog4j:{release-version}'
+        // ...
+    }
+----
+
+==== Maven
+
+[source,xml,indent=0,subs=attributes+]
+----
+    <dependency>
+      <groupId>org.slog4j</groupId>
+      <artifactId>slog4j</artifactId>
+      <version>{release-version}</version>
+    </dependency>
+----
+
+=== Step 2: Configure your underlying logging framework
+
+The default formatter used by SLog4j fits better the typical case where both structured and unstructured messages are being
+logged.
+On such cases, a basic _pattern_ configuration for Logback and Log4J could be:
+
+==== Logback
+
+[source,xml,indent=0]
+.logback.xml
+----
+<configuration>
+  
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSSZ} %level %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="DEBUG">
+    <appender-ref ref="STDOUT" />
+  </root>
+
+</configuration>
+----
+
+==== Log4j
+
+[source,xml,indent=0]
+.log4j.xml
+----
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration debug="true" xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+  <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSSZ} %p %m%n" />
+    </layout>
+  </appender>
+
+  <root>
+    <level value="DEBUG" />
+    <appender-ref ref="STDOUT" />
+  </root>
+
+</log4j:configuration>
+----
+
+=== Step 3: Instantiate the logger
+
+Instead of the standard SLF4J Logger, you must instantiate the SLog4j Logger:
+
+[source,indent=0]
+----
+    import org.slog4j.SLogger;
+    import org.slog4j.SLoggerFactory;
+
+    class MyClass {
+        private static final SLogger slog = SLoggerFactory.getLogger(MyClass.class);
+        // ...
+    }
+----
+
+=== Step 4: Log the event messages
+
+Before delving into details of SLog4j API, let's see some examples that work out-of-the-box.
+
+[source]
+.Example: Basic SLogger invocations
+----
+long spanId = 0x7f084ff214810d24L;
+Map<String, ?> credentials = new HashMap<>() {{
+  put("username", "jsmith");
+  put("login_time", new Date());
+}};
+byte[] token = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
+
+slog.info(spanId, "CONNECT");
+slog.info(spanId, "SSL_CONNECT", "protocol", "tlsv1.2", "tcp_port", 443);
+slog.info(spanId, "USER_LOGIN", credentials, "token", token);
+----
+
+.Resulting Log Messages (with default formatter)
+ 2017-10-08T16:08:02.055-0500 INFO evt=CONNECT spanId=7f084ff214810d24
+ 2017-10-08T16:08:02.195-0500 INFO evt=SSL_CONNECT spanId=7f084ff214810d24 protocol=tlsv1.2 tcp_port=443
+ 2017-10-08T16:08:02.913-0500 INFO evt=USER_LOGIN spanId=7f084ff214810d24 username=jsmith login_time=2017-10-08T16:08:02.899-0500 token=AQIDBAUGBwg=
+
+== The SLog4j API
+
+A simplified view of the **SLogger** interface is shown below:
+
+[source,indent=0]
+----
+    package org.slog4j;
+
+    public interface SLogger {
+        void error(long spanId, String eventId, Object... objs);
+        void warn(long spanId, String eventId, Object... objs);
+        void info(long spanId, String eventId, Object... objs);
+        void debug(long spanId, String eventId, Object... objs);
+        void trace(long spanId, String eventId, Object... objs);
+
+        void error(String eventId, Object... objs);
+        void warn(String eventId, Object... objs);
+        void info(String eventId, Object... objs);
+        void debug(String eventId, Object... objs);
+        void trace(String eventId, Object... objs);
+    }
+----
+
+With SLog4j you'll be always logging structured events. At the API level this implies that your application will
+provide a sequence of one or more _Name/Value_ pairs to one of the SLogger methods above.
+This sequence is conceptually comprised of:
+
+* A mandatory `(evt, _eventId_)` pair to identify the event being logged. The value is taken from the _eventId_ argument and the _name_ is `evt` by default
+and can be configured to another value;
+* An optional `(span, _spanId_)` used to correlate events;
+* Additional pairs marshalled from the _objs_ array elements.
+
+The _objs_ array, in its turn, contains a variable sequence of either:
+
+* _Name/Value_ pair, where _Name_ is a _String_ and _Value_ is an object;
+* An object of any type except _String_.
+
+== Configuring SLog4j
+
+Every object must be first marshalled to text to be logged. On SLog4j this marshalling is a four step process:
+
+1. Is it a Single Object? True if _obj_ type is a _String_, a https://en.wikipedia.org/wiki/Primitive_wrapper_class[primitive wrapper class] or has a registered
+http://www.joda.org/joda-convert/[joda-convert] http://www.joda.org/joda-convert/apidocs/org/joda/convert/ToStringConverter.html[_ToStringConverter_];
+2. Is a Complex Object? Is there a registered _ToPropertiesConverter_ for its type?
+3. Is a Throwable?
+4. Everything else
+
+== Why SLog4j?
+
+The Structured logging technique was positioned on the *Adopt* ring on January 2015 edition of
+[ThoughtWorks' Technology Radar](https://www.thoughtworks.com/radar/techniques/structured-logging).
+Today most popular programming languages has at least one mature solution for Structured logging but
+Java, albeit surprisingly, still lacks behind. Until now ;-)
+
+== License
+
+Copyright (c) 2017 Eliezio Oliveira. See the LICENSE file for license rights and limitations (MIT).
+

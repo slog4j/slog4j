@@ -11,7 +11,9 @@ import lombok.experimental.UtilityClass;
 public class TimeProviders {
 
     /**
-     * The system time provider.
+     * The standard system time provider.
+     *
+     * @return The system time provider.
      */
     public static TimeProvider system() {
         return SystemTimeProvider.INSTANCE;
@@ -20,7 +22,7 @@ public class TimeProviders {
     /**
      * A time provider that always returns the same instant.
      *
-     * @param fixedMillis The instant when the clock ha broke.
+     * @param fixedMillis The instant when the clock broke.
      * @return The broken-clock provider.
      */
     public static TimeProvider brokenClock(final long fixedMillis) {
