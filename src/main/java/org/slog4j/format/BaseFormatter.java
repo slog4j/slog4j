@@ -7,25 +7,34 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
 import org.joda.convert.ToStringConverter;
+import org.slf4j.event.Level;
 import org.slog4j.types.LongId;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class BaseFormatter implements Formatter {
+public abstract class BaseFormatter implements ConfigurableFormatter {
 
-    private static final   String DEFAULT_EVENT_ID_LABEL = "evt";
-    private static final   String DEFAULT_SPAN_ID_LABEL  = "spanId";
-    protected static final String TIME_LABEL             = "time";
-    protected static final String LEVEL_LABEL            = "level";
+    private static final String DEFAULT_EVENT_ID_LABEL = "evt";
+    private static final String DEFAULT_SPAN_ID_LABEL  = "spanId";
+
+    protected static final String TIME_LABEL  = "time";
+    protected static final String LEVEL_LABEL = "level";
 
     static final String NULL_PLACEHOLDER          = "_NULL_";
     static final String NO_CONVERTER_PLACEHOLDER  = "_NO_CONVERTER_";
     static final String MISSING_VALUE_PLACEHOLDER = "_MISSING_";
 
-    // TextFormatter assumes the format don't have spaces and no special characters that requires quoting
-    static final FastDateFormat FORMAT_ISO8601_MILLIS = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    /**
+     * The standard ISO8601/RFC3339 format for date/time but with milliseconds precision.
+     */
+    static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
+    /**
+     * Thread-safe alternative to {@link java.text.SimpleDateFormat}.
+     */
+    static final FastDateFormat FORMAT_ISO8601_MILLIS = FastDateFormat.getInstance(DATE_TIME_FORMAT);
 
     private final StringConvert                     toStringConverters     = new StringConvert(true);
     private final Map<Class, ToPropertiesConverter> toPropertiesConverters = new ClassMap<ToPropertiesConverter>();
@@ -38,48 +47,31 @@ public abstract class BaseFormatter implements Formatter {
     @Accessors(fluent = true)
     private String spanIdLabel = DEFAULT_SPAN_ID_LABEL;
 
-    private final boolean immutable;
-
     public BaseFormatter() {
-        this(false);
-    }
-
-    public BaseFormatter(boolean immutable) {
         registerAdditionalConverters();
-        this.immutable = immutable;
     }
 
     @Override
     public Formatter eventIdLabel(String eventIdLabel) {
-        checkIfMutable();
         this.eventIdLabel = eventIdLabel;
         return this;
     }
 
     @Override
     public Formatter spanIdLabel(String spanIdLabel) {
-        checkIfMutable();
         this.spanIdLabel = spanIdLabel;
         return this;
     }
 
     private void registerAdditionalConverters() {
-        registerToStringConverter(LongId.class, new LongIdConverter());
-        registerToStringConverter(InetSocketAddress.class, new InetSocketAddressConverter());
-        registerToPropertiesConverter(Map.class, new MapConverter());
-    }
-
-    @Override
-    public <T> Formatter registerToStringConverter(Class<T> clazz, StringConverter<T> converter) {
-        checkIfMutable();
-        toStringConverters.register(clazz, converter);
-        return this;
+        registerToStringConverter(LongId.class, LongIdConverter.INSTANCE);
+        registerToStringConverter(InetSocketAddress.class, InetSocketAddressConverter.INSTANCE);
+        registerToPropertiesConverter(Map.class, MapConverter.INSTANCE);
     }
 
     @Override
     public <T> Formatter registerToStringConverter(Class<T> clazz, final ToStringConverter<T> converter) {
-        checkIfMutable();
-        registerToStringConverter(clazz, new StringConverter<T>() {
+        toStringConverters.register(clazz, new StringConverter<T>() {
             @Override
             public T convertFromString(Class<? extends T> cls, String str) {
                 throw new UnsupportedOperationException();
@@ -95,7 +87,6 @@ public abstract class BaseFormatter implements Formatter {
 
     @Override
     public <T> Formatter registerToPropertiesConverter(Class<T> clazz, ToPropertiesConverter<T> converter) {
-        checkIfMutable();
         toPropertiesConverters.put(clazz, converter);
         return this;
     }
@@ -108,10 +99,8 @@ public abstract class BaseFormatter implements Formatter {
         return toPropertiesConverters.get(clazz);
     }
 
-    private void checkIfMutable() {
-        if (immutable) {
-            throw new IllegalStateException("Immutable formatter cannot be extended");
-        }
+    protected StrBuilderResult beforeAddContentsHook(StrBuilderResult sbr, Level level) {
+        return sbr;
     }
 
     private static final class ClassMap<T> extends ConcurrentHashMap<Class, T> {
@@ -122,6 +111,7 @@ public abstract class BaseFormatter implements Formatter {
             if (value == null) {
                 value = getCompatible(key);
                 if (value != null) {
+                    // to speed-up next look up
                     put((Class) key, value);
                 }
             }
@@ -140,6 +130,9 @@ public abstract class BaseFormatter implements Formatter {
     }
 
     protected static final class LongIdConverter implements ToStringConverter<LongId> {
+        private static final LongIdConverter INSTANCE = new LongIdConverter();
+
+        private LongIdConverter() {}
 
         @Override
         public String convertToString(LongId longId) {
@@ -152,6 +145,9 @@ public abstract class BaseFormatter implements Formatter {
     }
 
     private static final class InetSocketAddressConverter implements ToStringConverter<InetSocketAddress> {
+        private static final InetSocketAddressConverter INSTANCE = new InetSocketAddressConverter();
+
+        private InetSocketAddressConverter() { }
 
         @Override
         public String convertToString(InetSocketAddress value) {
@@ -165,6 +161,9 @@ public abstract class BaseFormatter implements Formatter {
     }
 
     private static final class MapConverter implements ToPropertiesConverter<Map> {
+        private static final MapConverter INSTANCE = new MapConverter();
+
+        private MapConverter() { }
 
         @Override
         @SuppressWarnings("unchecked")
