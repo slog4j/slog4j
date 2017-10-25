@@ -9,6 +9,7 @@ plugins {
     // Versioning Plugins
     id 'nebula.release' version '6.0.2'
 
+    id 'com.adarshr.test-logger' version '1.0.1'
     id 'com.github.kt3k.coveralls' version '2.8.1'
     id 'com.jfrog.bintray' version '1.7.3'
 }
@@ -42,12 +43,8 @@ dependencies {
     )
 }
 
-tasks.withType(Test) {
-    // show standard out and standard error of the test JVM(s) on the console
-    testLogging {
-        events 'started', 'passed', 'skipped', 'failed'
-        showStandardStreams = true
-    }
+testlogger {
+    theme 'mocha'
 }
 
 jacocoTestReport {
