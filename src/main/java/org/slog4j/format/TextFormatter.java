@@ -14,12 +14,6 @@ public class TextFormatter extends BaseFormatter {
     private static final char OPEN_SUBFIELD  = '[';
     private static final char CLOSE_SUBFIELD = ']';
 
-    private static final TextFormatter INSTANCE = new TextFormatter();
-
-    public static TextFormatter getInstance() {
-        return INSTANCE;
-    }
-
     @Override
     public Result format(Level level, long spanId, String eventId) {
         val sbr = StrBuilderResultFactory.get();
