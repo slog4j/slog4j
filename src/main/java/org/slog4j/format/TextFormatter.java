@@ -2,6 +2,7 @@ package org.slog4j.format;
 
 import lombok.val;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.event.Level;
 import org.slog4j.SLogger;
 
@@ -63,7 +64,7 @@ public class TextFormatter extends BaseFormatter {
     }
 
     private static StrBuilderResult appendText(StrBuilderResult sbr, String str) {
-        boolean mustQuote = str.indexOf(PROPERTY_SEP) >= 0;
+        boolean mustQuote = StringUtils.indexOfAny(str, PROPERTY_SEP, OPEN_SUBFIELD, CLOSE_SUBFIELD) >= 0;
         if (mustQuote) {
             sbr.append('\'');
         }
@@ -73,7 +74,7 @@ public class TextFormatter extends BaseFormatter {
         for (index = 0; index < chars.length; index++) {
             char c = chars[index];
             int charToScape = Integer.MAX_VALUE;
-            if ((c == '\'') || (c == OPEN_SUBFIELD) || (c == CLOSE_SUBFIELD)) {
+            if (c == '\'') {
                 charToScape = c;
             } else if (c == '\r') {
                 charToScape = 'r';

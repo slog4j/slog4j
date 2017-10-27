@@ -75,7 +75,7 @@ class TextFormatterSpec extends Specification {
             'kv response kv'         | 'respSent'       | ['obj', 'server4', new Response(clntNii: 0x83d9, servNii: 0x0955, seq: 0, bodyLen: 1453), 'len', 560]             || 'event=respSent obj=server4 clntNii=0x83d9 servNii=0x0955 seq=0 bodyLen=1453 len=560'
             'kv pairs'               | 'dataSent'       | ['obj', 'server4', 'traceId', 'TID 2', 'len', 560]                                                                || "event=dataSent obj=server4 traceId='TID 2' len=560"
             'ignore null, LongId'    | 'dataSent'       | ['obj', 'server4', null, 'traceId', new LongId(0x69e3d3a6db5b8241L), 'len', 560]                                  || "event=dataSent obj=server4 traceId=69e3d3a6db5b8241 len=560"
-            'value w/ special chars' | 'procError'      | ['errno', 1001, 'message', "['the' error]"]                                                                       || "event=procError errno=1001 message='\\[\\'the\\' error\\]'"
+            'value w/ special chars' | 'procError'      | ['errno', 1001, 'message', "['the' error]"]                                                                       || "event=procError errno=1001 message='[\\'the\\' error]'"
             'value is map'           | 'requestRecv'    | ['parameters', [readerFW: '2.100', readerModel: 'RC700', operation: 'AA', readerSN: 2147490583, csn: 1666649158]] || 'event=requestRecv parameters=[readerFW=2.100 readerModel=RC700 operation=AA readerSN=2147490583 csn=1666649158]'
     }
 
