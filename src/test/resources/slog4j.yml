@@ -1,0 +1,5 @@
+formatter:
+  class: org.slog4j.format.TextFormatter
+  converters:
+    to_properties:
+        org.slog4j.SLoggerSpec$Person: org.slog4j.SLoggerSpec$PersonConverter
