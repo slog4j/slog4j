@@ -1,6 +1,5 @@
 package org.slog4j.format;
 
-import org.joda.convert.StringConverter;
 import org.joda.convert.ToStringConverter;
 
 /**
