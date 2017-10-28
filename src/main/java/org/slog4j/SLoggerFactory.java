@@ -13,15 +13,15 @@ public class SLoggerFactory {
         return getLogger(name, FormatterFactory.getInstance());
     }
 
-    public static SLogger getLogger(String name, Formatter formatter) {
-        return getLogger(LoggerFactory.getLogger(name), formatter);
-    }
-
     public static SLogger getLogger(Class<?> clazz) {
         return getLogger(clazz, FormatterFactory.getInstance());
     }
 
-    public static SLogger getLogger(Class<?> clazz, Formatter formatter) {
+    static SLogger getLogger(String name, Formatter formatter) {
+        return getLogger(LoggerFactory.getLogger(name), formatter);
+    }
+
+    static SLogger getLogger(Class<?> clazz, Formatter formatter) {
         return getLogger(LoggerFactory.getLogger(clazz), formatter);
     }
 
