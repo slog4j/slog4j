@@ -164,7 +164,7 @@ class TextFormatterSpec extends Specification {
             } as ToStringConverter)
             def srcAddress = InetAddress.getByAddress([10, 10, 15, 250] as byte[])
             def dstAddress = InetAddress.getByAddress([54, 225, 214, 228] as byte[])
-            def dstGeoLocation = new GeoLocation(39.0481, -77.4728)
+            def dstGeoLocation = new GeoLocation(39.0481f, -77.4728f)
 
         when:
             def msg = formatter.format(Level.INFO, NO_SPAN_ID, 'accept',
