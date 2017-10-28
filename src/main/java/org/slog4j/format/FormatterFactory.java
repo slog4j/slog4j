@@ -1,7 +1,6 @@
 package org.slog4j.format;
 
 import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.joda.convert.ToStringConverter;
 import org.slog4j.time.TimeProvider;
@@ -12,7 +11,6 @@ import java.io.InputStream;
 import java.util.Map;
 
 @UtilityClass
-@Slf4j
 public class FormatterFactory {
 
     private static Formatter INSTANCE;
@@ -28,54 +26,51 @@ public class FormatterFactory {
                 try {
                     INSTANCE = loadFormatterFromStream(configInput, timeProvider);
                 } catch (Exception e) {
-                    log.error("Error loading SLog4j configuration", e);
+                    throw new ConfigurationError("Error loading SLog4j configuration", e);
                 }
             }
             if (INSTANCE == null) {
-                log.info("Using SLog4j default configuration");
-                INSTANCE = new TextFormatter();
+                INSTANCE = getDefaultInstance();
             }
         }
         return INSTANCE;
     }
 
     @SuppressWarnings("unchecked")
-    // @Nullable
     private static Formatter loadFormatterFromStream(InputStream is, TimeProvider timeProvider)
         throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        val cl = FormatterFactory.class.getClassLoader();
         val yaml = new Yaml().loadAs(is, Map.class);
-        val formatterEntry = (Map<String, ?>) yaml.get("formatter");
-        if (formatterEntry != null) {
-            val className = (String) formatterEntry.get("class");
-            if (className != null) {
-                val cl = FormatterFactory.class.getClassLoader();
-                val formatterClass = cl.loadClass(className);
-                val formatter = (Formatter) formatterClass.newInstance();
-                if (formatter instanceof ConfigurableFormatter) {
-                    val configurableInstance = (ConfigurableFormatter) formatter;
-                    val convertersEntry = (Map<String, ?>) formatterEntry.get("converters");
-                    if (convertersEntry != null) {
-                        val toStringConverters = (Map<String, String>) convertersEntry.get("to_string");
-                        if (toStringConverters != null) {
-                            for (val entry : toStringConverters.entrySet()) {
-                                val type = cl.loadClass(entry.getKey());
-                                val converter = (ToStringConverter) cl.loadClass(entry.getValue()).newInstance();
-                                configurableInstance.registerToStringConverter(type, converter);
-                            }
-                        }
-                        val toPropertiesConverters = (Map<String, String>) convertersEntry.get("to_properties");
-                        if (toPropertiesConverters != null) {
-                            for (val entry : toPropertiesConverters.entrySet()) {
-                                val type = cl.loadClass(entry.getKey());
-                                val converter = (ToPropertiesConverter) cl.loadClass(entry.getValue()).newInstance();
-                                configurableInstance.registerToPropertiesConverter(type, converter);
-                            }
-                        }
+        val formatterClassName = (String) yaml.get("formatter");
+        final Formatter formatter;
+        if (formatterClassName == null) {
+            formatter = getDefaultInstance();
+        } else {
+            val formatterClass = cl.loadClass(formatterClassName);
+            formatter = (Formatter) formatterClass.newInstance();
+        }
+        if (formatter instanceof ConfigurableFormatter) {
+            val configurableFormatter = (ConfigurableFormatter) formatter;
+            val convertersEntry = (Map<String, String>) yaml.get("converters");
+            if (convertersEntry != null) {
+                for (val entry : convertersEntry.entrySet()) {
+                    val type = cl.loadClass(entry.getKey());
+                    Object converter = cl.loadClass(entry.getValue()).newInstance();
+                    if (converter instanceof ToPropertiesConverter) {
+                        configurableFormatter.registerToPropertiesConverter(type, (ToPropertiesConverter) converter);
+                    } else if (converter instanceof ToStringConverter) {
+                        configurableFormatter.registerToStringConverter(type, (ToStringConverter) converter);
+                    } else {
+                        throw new ConfigurationError("Converter type does not implement a supported interface: " +
+                            entry.getValue());
                     }
                 }
-                return formatter;
             }
         }
-        return null;
+        return formatter;
+    }
+
+    private static Formatter getDefaultInstance() {
+        return new TextFormatter();
     }
 }
