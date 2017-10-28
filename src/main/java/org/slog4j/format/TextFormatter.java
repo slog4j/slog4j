@@ -73,21 +73,19 @@ public class TextFormatter extends BaseFormatter {
         int index;
         for (index = 0; index < chars.length; index++) {
             char c = chars[index];
-            int charToScape = Integer.MAX_VALUE;
-            if (c == '\'') {
-                charToScape = c;
-            } else if (c == '\r') {
-                charToScape = 'r';
-            } else if (c == '\n') {
-                charToScape = 'n';
+            final int charToScape;
+            switch (c) {
+                case '\'': charToScape = c;   break;
+                case '\r': charToScape = 'r'; break;
+                case '\n': charToScape = 'n'; break;
+                default:
+                    continue;
             }
-            if (charToScape != Integer.MAX_VALUE) {
-                sbr.append(chars, startIndex, index - startIndex)
-                    // TODO: check if LogStash kv filter supports escaped chars!
-                    .append('\\')
-                    .append((char) charToScape);
-                startIndex = index + 1;
-            }
+            sbr.append(chars, startIndex, index - startIndex)
+                // TODO: check if LogStash kv filter supports escaped chars!
+                .append('\\')
+                .append((char) charToScape);
+            startIndex = index + 1;
         }
         if (startIndex < chars.length) {
             sbr.append(chars, startIndex, str.length() - startIndex);
