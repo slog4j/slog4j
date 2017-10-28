@@ -13,6 +13,7 @@ public class PureTextFormatter extends TextFormatter {
         this(TimeProviders.system());
     }
 
+    @Override
     protected StrBuilderResult beforeAddContentsHook(StrBuilderResult sbr, Level level) {
         return appendTimeAndLevel(sbr, level);
     }
