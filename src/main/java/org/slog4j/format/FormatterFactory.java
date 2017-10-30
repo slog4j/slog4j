@@ -51,6 +51,22 @@ public class FormatterFactory {
         }
         if (formatter instanceof ConfigurableFormatter) {
             val configurableFormatter = (ConfigurableFormatter) formatter;
+            val labelsEntry = (Map<String, String>) yaml.get("labels");
+            if (labelsEntry != null) {
+                for (val entry : labelsEntry.entrySet()) {
+                    String name = entry.getKey();
+                    String value = entry.getValue();
+                    if ("time".equals(name)) {
+                        configurableFormatter.timeLabel(value);
+                    } else if ("level".equals(name)) {
+                        configurableFormatter.levelLabel(value);
+                    } else if ("eventId".equals(name)) {
+                        configurableFormatter.eventIdLabel(value);
+                    } else if ("spanId".equals(name)) {
+                        configurableFormatter.spanIdLabel(value);
+                    }
+                }
+            }
             val convertersEntry = (Map<String, String>) yaml.get("converters");
             if (convertersEntry != null) {
                 for (val entry : convertersEntry.entrySet()) {
