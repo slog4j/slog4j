@@ -19,8 +19,8 @@ public class PureTextFormatter extends TextFormatter {
     }
 
     private StrBuilderResult appendTimeAndLevel(StrBuilderResult sbr, Level level) {
-        sbr.append(TIME_LABEL).append(NAME_VALUE_SEP)
+        sbr.append(timeLabel()).append(NAME_VALUE_SEP)
             .append(FORMAT_ISO8601_MILLIS.format(timeProvider.currentTimeMillis()));
-        return appendNameValue(sbr, LEVEL_LABEL, level.toString());
+        return appendNameValue(sbr, levelLabel(), level.toString());
     }
 }

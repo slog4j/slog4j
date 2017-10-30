@@ -16,11 +16,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class BaseFormatter implements ConfigurableFormatter {
 
+    private static final String DEFAULT_TIME_LABEL     = "time";
+    private static final String DEFAULT_LEVEL_LABEL    = "level";
     private static final String DEFAULT_EVENT_ID_LABEL = "evt";
     private static final String DEFAULT_SPAN_ID_LABEL  = "spanId";
-
-    protected static final String TIME_LABEL  = "time";
-    protected static final String LEVEL_LABEL = "level";
 
     static final String NULL_PLACEHOLDER          = "_NULL_";
     static final String NO_CONVERTER_PLACEHOLDER  = "_NO_CONVERTER_";
@@ -41,6 +40,14 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
 
     @Getter(AccessLevel.PROTECTED)
     @Accessors(fluent = true)
+    private String timeLabel = DEFAULT_TIME_LABEL;
+
+    @Getter(AccessLevel.PROTECTED)
+    @Accessors(fluent = true)
+    private String levelLabel = DEFAULT_LEVEL_LABEL;
+
+    @Getter(AccessLevel.PROTECTED)
+    @Accessors(fluent = true)
     private String eventIdLabel = DEFAULT_EVENT_ID_LABEL;
 
     @Getter(AccessLevel.PROTECTED)
@@ -49,6 +56,18 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
 
     public BaseFormatter() {
         registerAdditionalConverters();
+    }
+
+    @Override
+    public Formatter timeLabel(String timeLabel) {
+        this.timeLabel = timeLabel;
+        return this;
+    }
+
+    @Override
+    public Formatter levelLabel(String levelLabel) {
+        this.levelLabel = levelLabel;
+        return this;
     }
 
     @Override
