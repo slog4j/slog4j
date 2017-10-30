@@ -1,2 +1,8 @@
+labels:
+  time: t
+  level: l
+  eventId: evt
+  spanId: spanId
+
 converters:
   org.slog4j.SLoggerSpec$Person: org.slog4j.SLoggerSpec$PersonConverter
