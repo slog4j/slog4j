@@ -41,7 +41,7 @@ public interface SLogger {
      *
      * @param spanId The SPAN identifier.
      * @param eventId The event identifier.
-     * @param objs Other objects (name/value pairs and/or properties).
+     * @param objs Other properties.
      */
     void info(long spanId, String eventId, Object... objs);
 

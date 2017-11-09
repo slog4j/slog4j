@@ -80,7 +80,7 @@ On such cases, a basic _pattern_ configuration for Logback and Log4J could be:
 .logback.xml
 ----
 <configuration>
-  
+
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%d{yyyy-MM-dd HH:mm:ss.SSSZ} %level %msg%n</pattern>
@@ -180,18 +180,19 @@ A simplified view of the **SLogger** interface is shown below:
 ----
 
 With SLog4j you'll be always logging structured events. At the API level this implies that your application will
-provide a sequence of one or more _Name/Value_ pairs to one of the SLogger methods above.
+provide a sequence of one or more properties, i.e. _Name/Value_ pairs, to one of the SLogger methods above.
 This sequence is conceptually comprised of:
 
-* A mandatory `(evt, _eventId_)` pair to identify the event being logged. The value is taken from the _eventId_ argument and the _name_ is `evt` by default
+* A mandatory property to identify the event being logged. The value is taken from the _eventId_ argument and the _name_ is `evt` by default
 and can be configured to another value;
-* An optional `(span, _spanId_)` used to correlate events;
-* Additional pairs marshalled from the _objs_ array elements.
+* An optional _spanId_ property used to correlate events;
+* Additional properties taken from the _objs_ array.
 
 The _objs_ array, in its turn, contains a variable sequence of either:
 
-* _Name/Value_ pair, where _Name_ is a _String_ and _Value_ is an object;
-* An object of any type except _String_.
+* _Name/Value_ attribute, where _Name_ is a _String_ and _Value_ is an object;
+* An object that can be expanded to a properties sequence.
+* A Throwable
 
 == Configuring SLog4j
 

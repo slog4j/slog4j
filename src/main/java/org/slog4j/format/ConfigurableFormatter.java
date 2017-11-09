@@ -44,9 +44,9 @@ public interface ConfigurableFormatter extends Formatter {
     /**
      * Adds a new ToStringConverter for a custom type.
      *
-     * @param clazz The custom type's class.
+     * @param clazz     The custom type's class.
      * @param converter The corresponding converter.
-     * @param <T> The custom type.
+     * @param <T>       The custom type.
      * @return this, to enable chaining.
      */
     <T> Formatter registerToStringConverter(Class<T> clazz, ToStringConverter<T> converter);
