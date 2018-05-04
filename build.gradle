@@ -135,7 +135,3 @@ bintray {
         }
     }
 }
-
-// Remove automatic dependency set by nebula-release when it detects org.jfrog.bintray plugin
-// see https://github.com/nebula-plugins/nebula-release-plugin/blob/master/src/main/groovy/nebula/plugin/release/ReleasePlugin.groovy#L250
-postRelease.dependsOn = postRelease.taskDependencies.values - bintrayUpload
