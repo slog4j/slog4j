@@ -38,7 +38,7 @@ public class FormatterFactory {
 
     @SuppressWarnings("unchecked")
     private static Formatter loadFormatterFromStream(InputStream is, TimeProvider timeProvider)
-        throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        throws ReflectiveOperationException {
         val cl = FormatterFactory.class.getClassLoader();
         val yaml = new Yaml().loadAs(is, Map.class);
         val formatterClassName = (String) yaml.get("formatter");
@@ -47,7 +47,7 @@ public class FormatterFactory {
             formatter = getDefaultInstance();
         } else {
             val formatterClass = cl.loadClass(formatterClassName);
-            formatter = (Formatter) formatterClass.newInstance();
+            formatter = (Formatter) formatterClass.getDeclaredConstructor().newInstance();
         }
         if (formatter instanceof ConfigurableFormatter) {
             val configurableFormatter = (ConfigurableFormatter) formatter;
@@ -71,7 +71,7 @@ public class FormatterFactory {
             if (convertersEntry != null) {
                 for (val entry : convertersEntry.entrySet()) {
                     val type = cl.loadClass(entry.getKey());
-                    Object converter = cl.loadClass(entry.getValue()).newInstance();
+                    Object converter = cl.loadClass(entry.getValue()).getDeclaredConstructor().newInstance();
                     if (converter instanceof ToPropertiesConverter) {
                         configurableFormatter.registerToPropertiesConverter(type, (ToPropertiesConverter) converter);
                     } else if (converter instanceof ToStringConverter) {
