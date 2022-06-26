@@ -4,12 +4,14 @@ plugins {
     groovy
     jacoco
     `maven-publish`
+    signing
 
     // Versioning Plugins
     id("org.ajoberstar.grgit") version "5.0.0"
 
     id("com.adarshr.test-logger") version "3.2.0"
     id("com.github.kt3k.coveralls") version "2.12.0"
+    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
 
 group = "org.slog4j"
@@ -62,9 +64,14 @@ tasks.jacocoTestReport {
     }
 }
 
+fun findProperty(s: String) = project.findProperty(s) as String?
+val isSnapshot = project.version == "unspecified"
+
+val publicationName = "mavenJava"
+
 publishing {
     publications {
-        create<MavenPublication>("slog4j") {
+        create<MavenPublication>(publicationName) {
             from(components["java"])
             groupId = group.toString()
             artifactId = name
@@ -87,8 +94,32 @@ publishing {
                     }
                 }
                 scm {
+                    connection.set("scm:git:github.com/slog4j/slog4j.git")
+                    developerConnection.set("scm:git:ssh://github.com/slog4j/slog4j.git")
                     url.set("https://github.com/slog4j/slog4j.git")
                 }
+            }
+        }
+    }
+}
+
+signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign(publishing.publications[publicationName])
+}
+
+nexusPublishing {
+    repositories {
+        if (!isSnapshot) {
+            sonatype {
+                // 'sonatype' is pre-configured for Sonatype Nexus (OSSRH) which is used for The Central Repository
+                stagingProfileId.set(System.getenv("SONATYPE_STAGING_PROFILE_ID") ?: findProperty("sonatype.staging.profile.id")) //can reduce execution time by even 10 seconds
+                nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+                snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+                username.set(System.getenv("SONATYPE_USERNAME") ?: findProperty("sonatype.username"))
+                password.set(System.getenv("SONATYPE_PASSWORD") ?: findProperty("sonatype.password"))
             }
         }
     }
