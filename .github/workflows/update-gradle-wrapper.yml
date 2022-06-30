@@ -9,6 +9,7 @@ on:
 jobs:
   update-gradle-wrapper:
     runs-on: ubuntu-latest
+    environment: env1
     steps:
       - uses: actions/checkout@v3
       - name: Update Gradle Wrapper
