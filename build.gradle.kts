@@ -15,6 +15,7 @@ plugins {
 }
 
 group = "org.slog4j"
+val gh_org = "slog4j"
 description = "Structured Event Logging for Java"
 version = grgit.describe(mapOf(
     "tags" to true,
@@ -65,21 +66,18 @@ tasks.jacocoTestReport {
 }
 
 fun findProperty(s: String) = project.findProperty(s) as String?
-val isSnapshot = project.version == "unspecified"
-
-val publicationName = "mavenJava"
 
 publishing {
     publications {
-        create<MavenPublication>(publicationName) {
+        create<MavenPublication>(project.name) {
             from(components["java"])
             groupId = group.toString()
             artifactId = name
             version = version.toString()
             pom {
                 name.set(project.name)
-                description.set("Structured Event Logging for Java")
-                url.set("https://github.com/slog4j/slog4j.git")
+                description.set(project.description)
+                url.set("https://github.com/${gh_org}/${name}.git")
                 licenses {
                     license {
                         name.set("MIT License")
@@ -94,9 +92,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:github.com/slog4j/slog4j.git")
-                    developerConnection.set("scm:git:ssh://github.com/slog4j/slog4j.git")
-                    url.set("https://github.com/slog4j/slog4j.git")
+                    connection.set("scm:git:github.com/${gh_org}/${name}.git")
+                    developerConnection.set("scm:git:ssh://github.com/${gh_org}/${name}.git")
+                    url.set("https://github.com/${gh_org}/${name}.git")
                 }
             }
         }
@@ -107,20 +105,18 @@ signing {
     val signingKey: String? by project
     val signingPassword: String? by project
     useInMemoryPgpKeys(signingKey, signingPassword)
-    sign(publishing.publications[publicationName])
+    sign(publishing.publications[project.name])
 }
 
 nexusPublishing {
     repositories {
-        if (!isSnapshot) {
-            sonatype {
-                // 'sonatype' is pre-configured for Sonatype Nexus (OSSRH) which is used for The Central Repository
-                stagingProfileId.set(System.getenv("SONATYPE_STAGING_PROFILE_ID") ?: findProperty("sonatype.staging.profile.id")) //can reduce execution time by even 10 seconds
-                nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-                snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-                username.set(System.getenv("SONATYPE_USERNAME") ?: findProperty("sonatype.username"))
-                password.set(System.getenv("SONATYPE_PASSWORD") ?: findProperty("sonatype.password"))
-            }
+        sonatype {
+            // 'sonatype' is pre-configured for Sonatype Nexus (OSSRH) which is used for The Central Repository
+            stagingProfileId.set(System.getenv("SONATYPE_STAGING_PROFILE_ID") ?: findProperty("sonatype.staging.profile.id")) //can reduce execution time by even 10 seconds
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+            username.set(System.getenv("SONATYPE_USERNAME") ?: findProperty("sonatype.username"))
+            password.set(System.getenv("SONATYPE_PASSWORD") ?: findProperty("sonatype.password"))
         }
     }
 }
