@@ -7,7 +7,7 @@ plugins {
     signing
 
     // Versioning Plugins
-    id("org.ajoberstar.grgit") version "5.0.0"
+    id("org.ajoberstar.grgit") version "4.1.1"
 
     id("com.adarshr.test-logger") version "3.2.0"
     id("com.github.kt3k.coveralls") version "2.12.0"
@@ -23,7 +23,7 @@ version = grgit.describe(mapOf(
 println("version: $version")
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_1_8
     withJavadocJar()
     withSourcesJar()
 }
