@@ -22,4 +22,9 @@ jobs:
 
       - name: clean build
         run: ./gradlew clean build --no-daemon --info --stacktrace
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 ...
