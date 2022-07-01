@@ -15,7 +15,6 @@ plugins {
 }
 
 group = "org.slog4j"
-val gh_org = "slog4j"
 description = "Structured Event Logging for Java"
 version = grgit.describe(mapOf(
     "tags" to true,
@@ -65,19 +64,20 @@ tasks.jacocoTestReport {
     }
 }
 
-fun findProperty(s: String) = project.findProperty(s) as String?
+val ghOrg = "slog4j"
+val ghRepo = name
+val groupId = group.toString()
+val artifactId = name
 
 publishing {
     publications {
-        create<MavenPublication>(project.name) {
+        create<MavenPublication>(artifactId) {
             from(components["java"])
-            groupId = group.toString()
-            artifactId = name
             version = version.toString()
             pom {
-                name.set(project.name)
+                name.set(artifactId)
                 description.set(project.description)
-                url.set("https://github.com/${gh_org}/${name}.git")
+                url.set("https://github.com/${ghOrg}/${ghRepo}.git")
                 licenses {
                     license {
                         name.set("MIT License")
@@ -92,9 +92,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:github.com/${gh_org}/${name}.git")
-                    developerConnection.set("scm:git:ssh://github.com/${gh_org}/${name}.git")
-                    url.set("https://github.com/${gh_org}/${name}.git")
+                    connection.set("scm:git:github.com/${ghOrg}/${ghRepo}.git")
+                    developerConnection.set("scm:git:ssh://github.com/${ghOrg}/${ghRepo}.git")
+                    url.set("https://github.com/${ghOrg}/${ghRepo}.git")
                 }
             }
         }
@@ -108,15 +108,21 @@ signing {
     sign(publishing.publications[project.name])
 }
 
+val sonatypeStagingProfileId: String? = System.getenv("SONATYPE_STAGING_PROFILE_ID")
+val sonatypeUsername: String? = System.getenv("SONATYPE_USERNAME")
+val sonatypePassword: String? = System.getenv("SONATYPE_PASSWORD")
+
 nexusPublishing {
     repositories {
-        sonatype {
-            // 'sonatype' is pre-configured for Sonatype Nexus (OSSRH) which is used for The Central Repository
-            stagingProfileId.set(System.getenv("SONATYPE_STAGING_PROFILE_ID") ?: findProperty("sonatype.staging.profile.id")) //can reduce execution time by even 10 seconds
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-            username.set(System.getenv("SONATYPE_USERNAME") ?: findProperty("sonatype.username"))
-            password.set(System.getenv("SONATYPE_PASSWORD") ?: findProperty("sonatype.password"))
+        if (sonatypeStagingProfileId != null && sonatypeUsername != null && sonatypePassword != null) {
+            sonatype {
+                nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+                snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+
+                stagingProfileId.set(stagingProfileId)
+                username.set(sonatypeUsername)
+                password.set(sonatypePassword)
+            }
         }
     }
 }
