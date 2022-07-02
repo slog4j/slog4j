@@ -14,3 +14,6 @@ updates:
     schedule:
       interval: "daily"
     open-pull-requests-limit: 20
+    ignore:
+      - dependency-name: org.ajoberstar.grgit
+        update-types: ["version-update:semver-major"]
