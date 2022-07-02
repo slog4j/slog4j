@@ -10,7 +10,7 @@ plugins {
     id("org.ajoberstar.grgit") version "4.1.1"
 
     id("com.adarshr.test-logger") version "3.2.0"
-    id("com.github.kt3k.coveralls") version "2.12.0"
+    id("com.github.nbaztec.coveralls-jacoco") version "1.2.14"
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
 
@@ -60,14 +60,16 @@ tasks.withType<Test> {
 
 tasks.jacocoTestReport {
     reports {
-        html.required.set(true)
+        xml.required.set(true)
     }
 }
 
-val ghOrg = "slog4j"
-val ghRepo = name
 val groupId = group.toString()
 val artifactId = name
+
+val ghOrg = "slog4j"
+val ghRepo = name
+val ghHostAndPath = "github.com/${ghOrg}/${ghRepo}.git"
 
 publishing {
     publications {
@@ -77,7 +79,7 @@ publishing {
             pom {
                 name.set(artifactId)
                 description.set(project.description)
-                url.set("https://github.com/${ghOrg}/${ghRepo}.git")
+                url.set("https://$ghHostAndPath")
                 licenses {
                     license {
                         name.set("MIT License")
@@ -92,9 +94,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:github.com/${ghOrg}/${ghRepo}.git")
-                    developerConnection.set("scm:git:ssh://github.com/${ghOrg}/${ghRepo}.git")
-                    url.set("https://github.com/${ghOrg}/${ghRepo}.git")
+                    connection.set("scm:git:$ghHostAndPath")
+                    developerConnection.set("scm:git:ssh://$ghHostAndPath")
+                    url.set("https://$ghHostAndPath")
                 }
             }
         }
@@ -104,17 +106,18 @@ publishing {
 signing {
     val signingKey: String? by project
     val signingPassword: String? by project
-    useInMemoryPgpKeys(signingKey, signingPassword)
-    sign(publishing.publications[project.name])
-}
 
-val sonatypeStagingProfileId: String? = System.getenv("SONATYPE_STAGING_PROFILE_ID")
-val sonatypeUsername: String? = System.getenv("SONATYPE_USERNAME")
-val sonatypePassword: String? = System.getenv("SONATYPE_PASSWORD")
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign(publishing.publications[artifactId])
+}
 
 nexusPublishing {
     repositories {
-        if (sonatypeStagingProfileId != null && sonatypeUsername != null && sonatypePassword != null) {
+        val sonatypeStagingProfileId: String? by project
+        val sonatypeUsername: String? by project
+        val sonatypePassword: String? by project
+
+        if ((sonatypeStagingProfileId != null) && (sonatypeUsername != null) && (sonatypePassword != null)) {
             sonatype {
                 nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
                 snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
