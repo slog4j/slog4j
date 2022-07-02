@@ -3,7 +3,7 @@ Structured Event Logging for Java.
 :source-language: java
 :source-highlighter: pygments
 
-:uri-org: https://github.com/eliezio
+:uri-org: https://github.com/slog4j
 :uri-repo: {uri-org}/slog4j
 :uri-project: {uri-repo}
 
@@ -11,11 +11,9 @@ Structured Event Logging for Java.
 
 Allows you to stop logging prose and to start logging structured events.
 
-image:https://img.shields.io/github/license/eliezio/slog4j.svg[License, link="https://opensource.org/licenses/MIT"]
-image:https://travis-ci.org/eliezio/slog4j.svg?branch=master[Build, link="https://travis-ci.org/eliezio/slog4j"]
-image:https://coveralls.io/repos/github/eliezio/slog4j/badge.svg?branch=master[Coverage, link="https://coveralls.io/github/eliezio/slog4j?branch=master"]
-image:https://api.bintray.com/packages/eliezio/maven/slog4j/images/download.svg[Download, link="https://bintray.com/eliezio/maven/slog4j/_latestVersion"]
-image:https://img.shields.io/gitter/room/eliezio/slog4j.svg[Chat, link="https://gitter.im/eliezio/slog4j"]
+image:https://img.shields.io/github/license/slog4j/slog4j.svg[License, link="https://opensource.org/licenses/MIT"]
+image:https://coveralls.io/repos/github/slog4j/slog4j/badge.svg?branch=master[Coverage, link="https://coveralls.io/github/slog4j/slog4j?branch=master"]
+image:https://img.shields.io/gitter/room/slog4j/slog4j.svg[Chat, link="https://gitter.im/slog4j/slog4j"]
 
 == The Shifting Purpose of Logging
 
