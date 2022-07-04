@@ -10,6 +10,7 @@ plugins {
     id("org.ajoberstar.grgit") version "4.1.1"
 
     id("com.adarshr.test-logger") version "3.2.0"
+    id("com.github.ksoichiro.console.reporter") version "0.6.3"
     id("com.github.nbaztec.coveralls-jacoco") version "1.2.14"
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
@@ -59,9 +60,29 @@ tasks.withType<Test> {
 }
 
 tasks.jacocoTestReport {
+    dependsOn(tasks.test)
     reports {
         xml.required.set(true)
     }
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.jacocoTestReport)
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.90".toBigDecimal()
+            }
+        }
+    }
+}
+
+tasks.reportCoverage {
+    dependsOn(tasks.jacocoTestReport)
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
 val groupId = group.toString()
