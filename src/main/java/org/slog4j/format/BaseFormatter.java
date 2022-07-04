@@ -36,7 +36,7 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
     static final FastDateFormat FORMAT_ISO8601_MILLIS = FastDateFormat.getInstance(DATE_TIME_FORMAT);
 
     private final StringConvert                     toStringConverters     = new StringConvert(true);
-    private final Map<Class, ToPropertiesConverter> toPropertiesConverters = new ClassMap<ToPropertiesConverter>();
+    private final Map<Class, ToPropertiesConverter> toPropertiesConverters = new ClassMap<>();
 
     @Getter(AccessLevel.PROTECTED)
     @Accessors(fluent = true)
@@ -130,7 +130,7 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
             if (value == null) {
                 value = getCompatible(key);
                 if (value != null) {
-                    // to speed-up next look up
+                    // to speed up next look up
                     put((Class) key, value);
                 }
             }
