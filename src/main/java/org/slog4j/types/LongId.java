@@ -4,5 +4,5 @@ import lombok.Value;
 
 @Value
 public class LongId {
-    private final long value;
+    long value;
 }

@@ -97,7 +97,6 @@ public class TextFormatter extends BaseFormatter {
     }
 
     @SuppressWarnings({
-        "unchecked",
         "squid:ForLoopCounterChangedCheck"  // "for" loop stop conditions should be invariant
     })
     private StrBuilderResult appendObjects(StrBuilderResult sbr, Object[] objs) {

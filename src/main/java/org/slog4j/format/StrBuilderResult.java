@@ -161,14 +161,7 @@ public final class StrBuilderResult implements Formatter.Result {
         if (size > 0) {
             append(separator);
         }
-        final int strLen = str.length();
-        if (strLen > 0) {
-            final int len = size;
-            ensureCapacity(len + strLen);
-            str.getChars(0, strLen, buffer, len);
-            size += strLen;
-        }
-        return this;
+        return append(str);
     }
 
     /**
@@ -193,15 +186,13 @@ public final class StrBuilderResult implements Formatter.Result {
      * Checks the capacity and ensures that it is at least the size specified.
      *
      * @param capacity the capacity to ensure
-     * @return this, to enable chaining
      */
-    private Formatter.Result ensureCapacity(final int capacity) {
+    private void ensureCapacity(final int capacity) {
         if (capacity > buffer.length) {
             final char[] old = buffer;
             buffer = new char[capacity * 2];
             System.arraycopy(old, 0, buffer, 0, size);
         }
-        return this;
     }
 
     /**
