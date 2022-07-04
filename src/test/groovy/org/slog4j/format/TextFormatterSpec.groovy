@@ -4,26 +4,14 @@ import groovy.transform.Immutable
 import groovy.transform.TupleConstructor
 import org.joda.convert.ToStringConverter
 import org.slf4j.event.Level
-import org.slog4j.time.TimeProvider
-import org.slog4j.time.TimeProviders
 import org.slog4j.types.LongId
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.text.SimpleDateFormat
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
-
 import static org.slog4j.SLogger.NO_SPAN_ID
 
 class TextFormatterSpec extends Specification {
-
-    static final long             BROKEN_INSTANT    = 1506397907801L
-    static final TimeProvider     BROKEN_CLOCK      = TimeProviders.brokenClock(BROKEN_INSTANT)
-    static final SimpleDateFormat SDF               = new SimpleDateFormat(BaseFormatter.DATE_TIME_FORMAT)
-    static final String           BROKEN_CLOCK_TIME = SDF.format(BROKEN_INSTANT)
-
 
     enum CipherSuite {
         SSL_RSA_WITH_RC4_128_SHA
@@ -153,8 +141,6 @@ class TextFormatterSpec extends Specification {
 
     def 'example borrowed from graylog main page (https://www.graylog.org)'() {
         given:
-            def dateTime = ZonedDateTime.of(2016, 12, 7, 19, 45, 3, 941000000, ZoneOffset.UTC)
-            def timeProvider = TimeProviders.brokenClock(dateTime.toInstant().toEpochMilli())
             def formatter = new TextFormatter()
             formatter.registerToStringConverter(Inet4Address, { Inet4Address addr ->
                 addr.toString().substring(1)

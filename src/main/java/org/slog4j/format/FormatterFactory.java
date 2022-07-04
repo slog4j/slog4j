@@ -3,8 +3,6 @@ package org.slog4j.format;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.joda.convert.ToStringConverter;
-import org.slog4j.time.TimeProvider;
-import org.slog4j.time.TimeProviders;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
@@ -16,15 +14,11 @@ public class FormatterFactory {
     private static Formatter INSTANCE;
 
     public static Formatter getInstance() {
-        return getInstance(TimeProviders.system());
-    }
-
-    public static Formatter getInstance(TimeProvider timeProvider) {
         if (INSTANCE == null) {
             val configInput = FormatterFactory.class.getResourceAsStream("/slog4j.yml");
             if (configInput != null) {
                 try {
-                    INSTANCE = loadFormatterFromStream(configInput, timeProvider);
+                    INSTANCE = loadFormatterFromStream(configInput);
                 } catch (Exception e) {
                     throw new ConfigurationError("Error loading SLog4j configuration", e);
                 }
@@ -37,7 +31,7 @@ public class FormatterFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private static Formatter loadFormatterFromStream(InputStream is, TimeProvider timeProvider)
+    private static Formatter loadFormatterFromStream(InputStream is)
         throws ReflectiveOperationException {
         val cl = FormatterFactory.class.getClassLoader();
         val yaml = new Yaml().loadAs(is, Map.class);

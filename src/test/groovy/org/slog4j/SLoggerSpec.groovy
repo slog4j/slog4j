@@ -4,18 +4,19 @@ import org.slf4j.Logger
 import org.slog4j.format.FormatterFactory
 import org.slog4j.format.PureTextFormatter
 import org.slog4j.format.ToPropertiesConverter
-import org.slog4j.time.TimeProvider
-import org.slog4j.time.TimeProviders
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
 import java.text.SimpleDateFormat
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneOffset
 
 class SLoggerSpec extends Specification {
 
     static final long             BROKEN_INSTANT    = 1506397907801L
-    static final TimeProvider     BROKEN_CLOCK      = TimeProviders.brokenClock(BROKEN_INSTANT)
+    static final Clock            BROKEN_CLOCK      = Clock.fixed(Instant.ofEpochMilli(BROKEN_INSTANT), ZoneOffset.UTC)
     static final SimpleDateFormat SDF               = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     static final String           BROKEN_CLOCK_TIME = SDF.format(BROKEN_INSTANT)
 

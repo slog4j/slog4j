@@ -2,15 +2,15 @@ package org.slog4j.format;
 
 import lombok.RequiredArgsConstructor;
 import org.slf4j.event.Level;
-import org.slog4j.time.TimeProvider;
-import org.slog4j.time.TimeProviders;
+
+import java.time.Clock;
 
 @RequiredArgsConstructor
 public class PureTextFormatter extends TextFormatter {
-    private final TimeProvider timeProvider;
+    private final Clock clock;
 
     public PureTextFormatter() {
-        this(TimeProviders.system());
+        this(Clock.systemDefaultZone());
     }
 
     @Override
@@ -20,7 +20,7 @@ public class PureTextFormatter extends TextFormatter {
 
     private StrBuilderResult appendTimeAndLevel(StrBuilderResult sbr, Level level) {
         sbr.append(timeLabel()).append(NAME_VALUE_SEP)
-            .append(FORMAT_ISO8601_MILLIS.format(timeProvider.currentTimeMillis()));
+            .append(FORMAT_ISO8601_MILLIS.format(clock.millis()));
         return appendNameValue(sbr, levelLabel(), level.toString());
     }
 }
