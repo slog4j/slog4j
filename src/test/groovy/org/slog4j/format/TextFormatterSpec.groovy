@@ -44,10 +44,6 @@ class TextFormatterSpec extends Specification {
         given:
             def textFormatter = new TextFormatter()
             textFormatter.eventIdLabel('event')
-            textFormatter.registerToStringConverter(ShortId, { ShortId sid -> String.format('0x%04x', sid.id) })
-            textFormatter.registerToPropertiesConverter(Response, { Response resp ->
-                [clntNii: new ShortId(resp.clntNii), servNii: new ShortId(resp.servNii), seq: resp.seq, bodyLen: resp.bodyLen].entrySet()
-            })
 
         when: 'text-formatting an untraced event with INFO level'
             def msg = textFormatter.format(Level.INFO, NO_SPAN_ID, eventId, props as Object[]).getString()

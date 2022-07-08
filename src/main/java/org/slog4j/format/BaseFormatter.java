@@ -3,15 +3,16 @@ package org.slog4j.format;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import lombok.val;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
 import org.joda.convert.ToStringConverter;
+import org.joda.convert.TypedStringConverter;
 import org.slf4j.event.Level;
-import org.slog4j.types.LongId;
 
-import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class BaseFormatter implements ConfigurableFormatter {
@@ -82,14 +83,19 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
         return this;
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private void registerAdditionalConverters() {
-        registerToStringConverter(LongId.class, LongIdConverter.INSTANCE);
-        registerToStringConverter(InetSocketAddress.class, InetSocketAddressConverter.INSTANCE);
-        registerToPropertiesConverter(Map.class, MapConverter.INSTANCE);
+        val stringConverters = ServiceLoader.load(TypedStringConverter.class);
+        for (TypedStringConverter converter : stringConverters) {
+            toStringConverters.register(converter.getEffectiveType(), converter);
+        }
+        val propertiesConverters = ServiceLoader.load(ToPropertiesConverter.class);
+        for (ToPropertiesConverter converter : propertiesConverters) {
+            registerToPropertiesConverter(converter.getEffectiveType(), converter);
+        }
     }
 
-    @Override
-    public <T> Formatter registerToStringConverter(Class<T> clazz, final ToStringConverter<T> converter) {
+    <T> Formatter registerToStringConverter(Class<T> clazz, final ToStringConverter<T> converter) {
         toStringConverters.register(clazz, new StringConverter<T>() {
             @Override
             public T convertFromString(Class<? extends T> cls, String str) {
@@ -104,8 +110,7 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
         return this;
     }
 
-    @Override
-    public <T> Formatter registerToPropertiesConverter(Class<T> clazz, ToPropertiesConverter<T> converter) {
+    <T> Formatter registerToPropertiesConverter(Class<T> clazz, ToPropertiesConverter<T> converter) {
         toPropertiesConverters.put(clazz, converter);
         return this;
     }
@@ -145,49 +150,6 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
                 }
             }
             return null;
-        }
-    }
-
-    protected static final class LongIdConverter implements ToStringConverter<LongId> {
-        private static final LongIdConverter INSTANCE = new LongIdConverter();
-
-        private LongIdConverter() {}
-
-        @Override
-        public String convertToString(LongId longId) {
-            return convertToString(longId.getValue());
-        }
-
-        static String convertToString(long value) {
-            return String.format("%016x", value);
-        }
-    }
-
-    private static final class InetSocketAddressConverter implements ToStringConverter<InetSocketAddress> {
-        private static final InetSocketAddressConverter INSTANCE = new InetSocketAddressConverter();
-
-        private InetSocketAddressConverter() { }
-
-        @Override
-        public String convertToString(InetSocketAddress value) {
-            String text = value.toString();
-            int sep;
-            if ((sep = text.indexOf('/')) >= 0) {
-                return text.substring(sep + 1);
-            }
-            return text;
-        }
-    }
-
-    private static final class MapConverter implements ToPropertiesConverter<Map> {
-        private static final MapConverter INSTANCE = new MapConverter();
-
-        private MapConverter() { }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public Iterable<Map.Entry<String, Object>> convert(Map map) {
-            return map.entrySet();
         }
     }
 }

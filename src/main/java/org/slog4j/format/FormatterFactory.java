@@ -2,7 +2,6 @@ package org.slog4j.format;
 
 import lombok.experimental.UtilityClass;
 import lombok.val;
-import org.joda.convert.ToStringConverter;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
@@ -58,21 +57,6 @@ public class FormatterFactory {
                         configurableFormatter.eventIdLabel(value);
                     } else if ("spanId".equals(name)) {
                         configurableFormatter.spanIdLabel(value);
-                    }
-                }
-            }
-            val convertersEntry = (Map<String, String>) yaml.get("converters");
-            if (convertersEntry != null) {
-                for (val entry : convertersEntry.entrySet()) {
-                    val type = cl.loadClass(entry.getKey());
-                    Object converter = cl.loadClass(entry.getValue()).getDeclaredConstructor().newInstance();
-                    if (converter instanceof ToPropertiesConverter) {
-                        configurableFormatter.registerToPropertiesConverter(type, (ToPropertiesConverter) converter);
-                    } else if (converter instanceof ToStringConverter) {
-                        configurableFormatter.registerToStringConverter(type, (ToStringConverter) converter);
-                    } else {
-                        throw new ConfigurationError("Converter type does not implement a supported interface: " +
-                            entry.getValue());
                     }
                 }
             }

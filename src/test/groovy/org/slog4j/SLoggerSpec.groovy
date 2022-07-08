@@ -3,7 +3,6 @@ package org.slog4j
 import org.slf4j.Logger
 import org.slog4j.format.FormatterFactory
 import org.slog4j.format.PureTextFormatter
-import org.slog4j.format.ToPropertiesConverter
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -29,13 +28,6 @@ class SLoggerSpec extends Specification {
         int    age
     }
 
-    static class PersonConverter implements ToPropertiesConverter<Person> {
-        @Override
-        Iterable convert(Person p) {
-            return [firstName: p.firstName, lastName: p.lastName, age: p.age].entrySet()
-        }
-    }
-
     def 'logger with default configuration should format pre-configured classes'() {
         given:
             def log = Mock(Logger)
@@ -59,7 +51,6 @@ class SLoggerSpec extends Specification {
             def log = Mock(Logger)
             log."is${level.capitalize()}Enabled"() >> true
             def formatter = new PureTextFormatter(BROKEN_CLOCK)
-            formatter.registerToPropertiesConverter(Person, new PersonConverter())
             def slog = SLoggerFactory.getLogger(log, formatter)
             def spanId = 299792458L
 
