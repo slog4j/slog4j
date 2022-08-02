@@ -163,11 +163,11 @@ public class TextFormatter extends BaseFormatter {
             .append(NO_CONVERTER_PLACEHOLDER);
     }
 
-    private StrBuilderResult appendProperties(StrBuilderResult sbr, Iterable<Map.Entry<?, Object>> props) {
+    private StrBuilderResult appendProperties(StrBuilderResult sbr, Iterable<Map.Entry<String, Object>> props) {
         int loopIndex = 0;
-        for (Map.Entry<?, Object> prop : props) {
+        for (Map.Entry<String, Object> prop : props) {
             sbr.appendSeparator(PROPERTY_SEP, loopIndex++)
-                .append(prop.getKey().toString())
+                .append(prop.getKey())
                 .append(NAME_VALUE_SEP);
             appendValue(sbr, prop.getValue());
         }

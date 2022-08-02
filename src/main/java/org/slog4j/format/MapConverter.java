@@ -2,7 +2,7 @@ package org.slog4j.format;
 
 import java.util.Map;
 
-public class MapConverter implements ToPropertiesConverter<Map<String, Object>> {
+public class MapConverter implements ToPropertiesConverter {
 
     @Override
     public Class<?> getEffectiveType() {
@@ -10,7 +10,8 @@ public class MapConverter implements ToPropertiesConverter<Map<String, Object>> 
     }
 
     @Override
-    public Iterable<Map.Entry<String, Object>> convert(Map<String, Object> map) {
-        return map.entrySet();
+    @SuppressWarnings("unchecked")
+    public Iterable<Map.Entry<String, Object>> convert(Object map) {
+        return ((Map<String, Object>) map).entrySet();
     }
 }

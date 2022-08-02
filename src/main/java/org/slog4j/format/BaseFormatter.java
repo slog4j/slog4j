@@ -37,7 +37,7 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
     static final FastDateFormat FORMAT_ISO8601_MILLIS = FastDateFormat.getInstance(DATE_TIME_FORMAT);
 
     private final StringConvert                     toStringConverters     = new StringConvert(true);
-    private final Map<Class, ToPropertiesConverter> toPropertiesConverters = new ClassMap<>();
+    private final Map<Class<?>, ToPropertiesConverter> toPropertiesConverters = new ClassMap<>();
 
     @Getter(AccessLevel.PROTECTED)
     @Accessors(fluent = true)
@@ -110,7 +110,7 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
         return this;
     }
 
-    <T> Formatter registerToPropertiesConverter(Class<T> clazz, ToPropertiesConverter<T> converter) {
+    <T> Formatter registerToPropertiesConverter(Class<T> clazz, ToPropertiesConverter converter) {
         toPropertiesConverters.put(clazz, converter);
         return this;
     }
@@ -119,6 +119,7 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
         return toStringConverters.convertToString(obj);
     }
 
+    @SuppressWarnings("unchecked")
     protected ToPropertiesConverter propertiesConverter(Class<?> clazz) {
         return toPropertiesConverters.get(clazz);
     }
@@ -127,7 +128,7 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
         return sbr;
     }
 
-    private static final class ClassMap<T> extends ConcurrentHashMap<Class, T> {
+    private static final class ClassMap<T> extends ConcurrentHashMap<Class<?>, T> {
         @Override
         public T get(Object key) {
             assert key != null;
@@ -136,15 +137,14 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
                 value = getCompatible(key);
                 if (value != null) {
                     // to speed up next look up
-                    put((Class) key, value);
+                    put((Class<?>) key, value);
                 }
             }
             return value;
         }
 
-        @SuppressWarnings("unchecked")
         private T getCompatible(Object key) {
-            for (Entry<Class, T> entry : entrySet()) {
+            for (Entry<Class<?>, T> entry : entrySet()) {
                 if (entry.getKey().isAssignableFrom((Class<?>) key)) {
                     return entry.getValue();
                 }

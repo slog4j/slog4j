@@ -2,13 +2,13 @@ package org.slog4j.format;
 
 import java.util.Map;
 
-public interface ToPropertiesConverter<T> {
+public interface ToPropertiesConverter {
     /**
-     * Gets the effective type that the converter works on.
+     * Get the effective type supported by this converter.
      *
      * @return the effective type
      */
     Class<?> getEffectiveType();
 
-    Iterable<Map.Entry<String, Object>> convert(T object);
+    Iterable<Map.Entry<String, Object>> convert(Object object);
 }

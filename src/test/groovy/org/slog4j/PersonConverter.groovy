@@ -2,14 +2,16 @@ package org.slog4j
 
 import org.slog4j.format.ToPropertiesConverter
 
-class PersonConverter implements ToPropertiesConverter<SLoggerSpec.Person> {
+class PersonConverter implements ToPropertiesConverter {
     @Override
     Class<?> getEffectiveType() {
         return SLoggerSpec.Person.class
     }
 
     @Override
-    Iterable convert(SLoggerSpec.Person p) {
-        return [firstName: p.firstName, lastName: p.lastName, age: p.age].entrySet()
+    Iterable convert(Object p) {
+        return (p as SLoggerSpec.Person).with {
+            [firstName: it.firstName, lastName: it.lastName, age: it.age].entrySet()
+        }
     }
 }
