@@ -43,7 +43,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.yaml:snakeyaml:1.30")
 
-    testImplementation("org.spockframework:spock-core:2.1-groovy-3.0")
+    testImplementation("org.spockframework:spock-core:2.2-groovy-4.0")
 
     testRuntimeOnly("ch.qos.logback:logback-classic:1.2.11")
 }
