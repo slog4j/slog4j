@@ -45,7 +45,7 @@ dependencies {
 
     testImplementation("org.spockframework:spock-core:2.1-groovy-3.0")
 
-    testRuntimeOnly("ch.qos.logback:logback-classic:1.2.11")
+    testRuntimeOnly("ch.qos.logback:logback-classic:1.4.4")
 }
 
 tasks.withType<JavaCompile> {
