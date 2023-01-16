@@ -38,7 +38,7 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.24")
 
     api("org.slf4j:slf4j-api:1.7.36")
-    api("org.joda:joda-convert:2.2.2")
+    api("org.joda:joda-convert:2.2.3")
 
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.yaml:snakeyaml:1.30")
