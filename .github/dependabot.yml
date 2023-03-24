@@ -15,5 +15,9 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 20
     ignore:
-      - dependency-name: org.ajoberstar.grgit
+      - dependency-name: "org.ajoberstar.grgit"
         update-types: ["version-update:semver-major"]
+      - dependency-name: "slf4j-api"
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
+      - dependency-name: "logback-classic"
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
