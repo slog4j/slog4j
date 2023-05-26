@@ -55,8 +55,6 @@ public class FormatterFactory {
                         configurableFormatter.levelLabel(value);
                     } else if ("eventId".equals(name)) {
                         configurableFormatter.eventIdLabel(value);
-                    } else if ("spanId".equals(name)) {
-                        configurableFormatter.spanIdLabel(value);
                     }
                 }
             }

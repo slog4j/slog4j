@@ -2,4 +2,3 @@ labels:
   time: t
   level: l
   eventId: evt
-  spanId: spanId
