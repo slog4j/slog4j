@@ -4,7 +4,6 @@ import lombok.val;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.event.Level;
-import org.slog4j.SLogger;
 
 import java.util.Map;
 
@@ -16,51 +15,38 @@ public class TextFormatter extends BaseFormatter {
     private static final char CLOSE_SUBFIELD = ']';
 
     @Override
-    public Result format(Level level, long spanId, String eventId) {
+    public Result format(Level level, String eventId) {
         val sbr = StrBuilderResultFactory.get();
         beforeAddContentsHook(sbr, level);
-        appendNameValue(sbr, eventIdLabel(), eventId);
-        return appendSpanId(sbr, spanId);
+        return appendNameValue(sbr, eventIdLabel(), eventId);
     }
 
     @Override
-    public Result format(Level level, long spanId, String eventId, Object obj) {
+    public Result format(Level level, String eventId, Object obj) {
         val sbr = StrBuilderResultFactory.get();
         beforeAddContentsHook(sbr, level);
         appendNameValue(sbr, eventIdLabel(), eventId);
-        appendSpanId(sbr, spanId);
         return appendComplexObject(sbr, obj, true);
     }
 
     @Override
-    public Result format(Level level, long spanId, String eventId, String name, Object value) {
+    public Result format(Level level, String eventId, String name, Object value) {
         val sbr = StrBuilderResultFactory.get();
         beforeAddContentsHook(sbr, level);
         appendNameValue(sbr, eventIdLabel(), eventId);
-        appendSpanId(sbr, spanId);
         return appendValue(sbr.appendWithSeparator(PROPERTY_SEP, name).append(NAME_VALUE_SEP), value);
     }
 
     @Override
-    public Result format(Level level, long spanId, String eventId, Object... objs) {
+    public Result format(Level level, String eventId, Object... objs) {
         val sbr = StrBuilderResultFactory.get();
         beforeAddContentsHook(sbr, level);
         appendNameValue(sbr, eventIdLabel(), eventId);
-        appendSpanId(sbr, spanId);
         return appendObjects(sbr, objs);
     }
 
     protected StrBuilderResult appendNameValue(StrBuilderResult sbr, String name, String value) {
         return appendText(sbr.appendWithSeparator(PROPERTY_SEP, name).append(NAME_VALUE_SEP), value);
-    }
-
-    private StrBuilderResult appendSpanId(StrBuilderResult sbr, long spanId) {
-        if (spanId != SLogger.NO_SPAN_ID) {
-            sbr.appendSeparator(PROPERTY_SEP)
-                .append(spanIdLabel()).append(NAME_VALUE_SEP)
-                .append(LongIdConverter.convertToString(spanId));
-        }
-        return sbr;
     }
 
     private static StrBuilderResult appendText(StrBuilderResult sbr, String str) {
@@ -147,7 +133,6 @@ public class TextFormatter extends BaseFormatter {
         return appendText(sbr, str);
     }
 
-    @SuppressWarnings("unchecked")
     private StrBuilderResult appendComplexObject(StrBuilderResult sbr, Object obj, boolean topLevel) {
         val converter = propertiesConverter(obj.getClass());
         int loopIndex = topLevel ? 1 : 0;

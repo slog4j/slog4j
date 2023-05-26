@@ -137,22 +137,21 @@ Before delving into details of SLog4j API, let's see some examples that work out
 [source]
 .Example: Basic SLogger invocations
 ----
-long spanId = 0x7f084ff214810d24L;
 Map<String, ?> credentials = new HashMap<>() {{
   put("username", "jsmith");
   put("login_time", new Date());
 }};
 byte[] token = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
 
-slog.info(spanId, "CONNECT");
-slog.info(spanId, "SSL_CONNECT", "protocol", "tlsv1.2", "tcp_port", 443);
-slog.info(spanId, "USER_LOGIN", credentials, "token", token);
+slog.info("CONNECT");
+slog.info("SSL_CONNECT", "protocol", "tlsv1.2", "tcp_port", 443);
+slog.info("USER_LOGIN", credentials, "token", token);
 ----
 
 .Resulting Log Messages (with default formatter)
- 2017-10-08T16:08:02.055-0500 INFO evt=CONNECT spanId=7f084ff214810d24
- 2017-10-08T16:08:02.195-0500 INFO evt=SSL_CONNECT spanId=7f084ff214810d24 protocol=tlsv1.2 tcp_port=443
- 2017-10-08T16:08:02.913-0500 INFO evt=USER_LOGIN spanId=7f084ff214810d24 username=jsmith login_time=2017-10-08T16:08:02.899-0500 token=AQIDBAUGBwg=
+ 2017-10-08T16:08:02.055-0500 INFO evt=CONNECT
+ 2017-10-08T16:08:02.195-0500 INFO evt=SSL_CONNECT protocol=tlsv1.2 tcp_port=443
+ 2017-10-08T16:08:02.913-0500 INFO evt=USER_LOGIN username=jsmith login_time=2017-10-08T16:08:02.899-0500 token=AQIDBAUGBwg=
 
 == The SLog4j API
 
@@ -163,12 +162,6 @@ A simplified view of the **SLogger** interface is shown below:
     package org.slog4j;
 
     public interface SLogger {
-        void error(long spanId, String eventId, Object... objs);
-        void warn(long spanId, String eventId, Object... objs);
-        void info(long spanId, String eventId, Object... objs);
-        void debug(long spanId, String eventId, Object... objs);
-        void trace(long spanId, String eventId, Object... objs);
-
         void error(String eventId, Object... objs);
         void warn(String eventId, Object... objs);
         void info(String eventId, Object... objs);
