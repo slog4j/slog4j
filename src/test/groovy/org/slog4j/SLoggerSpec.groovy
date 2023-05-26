@@ -34,13 +34,12 @@ class SLoggerSpec extends Specification {
             log.isInfoEnabled() >> true
             def formatter = FormatterFactory.getInstance()
             def slog = SLoggerFactory.getLogger(log, formatter)
-            def spanId = 0x19d46be5a54ab65aL
 
         when:
-            slog.info(spanId,"EVENT_WITH_KEY_SIMPLE_VALUE", 'person', person, 'aKey', 'aValue')
+            slog.info("EVENT_WITH_KEY_SIMPLE_VALUE", 'person', person, 'aKey', 'aValue')
 
         then:
-            1 * log.info("evt=EVENT_WITH_KEY_SIMPLE_VALUE spanId=19d46be5a54ab65a person=[firstName=John lastName=Smith age=40] aKey=aValue")
+            1 * log.info("evt=EVENT_WITH_KEY_SIMPLE_VALUE person=[firstName=John lastName=Smith age=40] aKey=aValue")
     }
 
     @Unroll
@@ -52,36 +51,20 @@ class SLoggerSpec extends Specification {
             log."is${level.capitalize()}Enabled"() >> true
             def formatter = new PureTextFormatter(BROKEN_CLOCK)
             def slog = SLoggerFactory.getLogger(log, formatter)
-            def spanId = 299792458L
 
         when:
-            // untraced events
             slog."$level"("${level}NakedEvent")
             slog."$level"("${level}EventWithAnObject", person)
             slog."$level"("${level}EventWithKeySimpleValue", 'aKey', 'aValue')
             slog."$level"("${level}EventWithKeyComplexValue", 'person', person)
             slog."$level"("${level}EventWithProps", person, 'aKey', 'aValue')
-            // traced events
-            slog."$level"(spanId, "${level}NakedEvent")
-            slog."$level"(spanId, "${level}EventWithAnObject", person)
-            slog."$level"(spanId, "${level}EventWithKeySimpleValue", 'aKey', 'aValue')
-            slog."$level"(spanId, "${level}EventWithKeyComplexValue", 'person', person)
-            slog."$level"(spanId, "${level}EventWithProps", person, 'aKey', 'aValue')
 
         then:
-            // untraced events
             1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}NakedEvent")
             1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithAnObject firstName=John lastName=Smith age=40")
             1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithKeySimpleValue aKey=aValue")
             1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithKeyComplexValue person=[firstName=John lastName=Smith age=40]")
             1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithProps firstName=John lastName=Smith age=40 aKey=aValue")
-
-            // traced events
-            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}NakedEvent spanId=0000000011de784a")
-            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithAnObject spanId=0000000011de784a firstName=John lastName=Smith age=40")
-            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithKeySimpleValue spanId=0000000011de784a aKey=aValue")
-            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithKeyComplexValue spanId=0000000011de784a person=[firstName=John lastName=Smith age=40]")
-            1 * log."$level"("time=$BROKEN_CLOCK_TIME level=$ucLevel evt=${level}EventWithProps spanId=0000000011de784a firstName=John lastName=Smith age=40 aKey=aValue")
 
         where:
             level << ['error', 'warn', 'info', 'debug', 'trace']

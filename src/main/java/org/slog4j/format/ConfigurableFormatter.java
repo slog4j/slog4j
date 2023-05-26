@@ -30,12 +30,4 @@ public interface ConfigurableFormatter extends Formatter {
      */
     Formatter eventIdLabel(String eventIdLabel);
 
-    /**
-     * Changes the label used for the recommended spanId property.To avoid any implicit transformation, the
-     * provided label cannot contain any space and/or characters that would require quoting (i.e: '\'', '[', ']').
-     *
-     * @param spanIdLabel The new label.
-     * @return this, to enable chaining.
-     */
-    Formatter spanIdLabel(String spanIdLabel);
 }

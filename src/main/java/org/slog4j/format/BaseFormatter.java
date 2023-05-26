@@ -15,12 +15,12 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
+@SuppressWarnings("UnusedReturnValue")
 public abstract class BaseFormatter implements ConfigurableFormatter {
 
     private static final String DEFAULT_TIME_LABEL     = "time";
     private static final String DEFAULT_LEVEL_LABEL    = "level";
     private static final String DEFAULT_EVENT_ID_LABEL = "evt";
-    private static final String DEFAULT_SPAN_ID_LABEL  = "spanId";
 
     static final String NULL_PLACEHOLDER          = "_NULL_";
     static final String NO_CONVERTER_PLACEHOLDER  = "_NO_CONVERTER_";
@@ -29,6 +29,7 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
     /**
      * The standard ISO8601/RFC3339 format for date/time but with milliseconds precision.
      */
+    @SuppressWarnings("SpellCheckingInspection")
     static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     /**
@@ -51,10 +52,6 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
     @Accessors(fluent = true)
     private String eventIdLabel = DEFAULT_EVENT_ID_LABEL;
 
-    @Getter(AccessLevel.PROTECTED)
-    @Accessors(fluent = true)
-    private String spanIdLabel = DEFAULT_SPAN_ID_LABEL;
-
     public BaseFormatter() {
         registerAdditionalConverters();
     }
@@ -74,12 +71,6 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
     @Override
     public Formatter eventIdLabel(String eventIdLabel) {
         this.eventIdLabel = eventIdLabel;
-        return this;
-    }
-
-    @Override
-    public Formatter spanIdLabel(String spanIdLabel) {
-        this.spanIdLabel = spanIdLabel;
         return this;
     }
 
@@ -119,7 +110,6 @@ public abstract class BaseFormatter implements ConfigurableFormatter {
         return toStringConverters.convertToString(obj);
     }
 
-    @SuppressWarnings("unchecked")
     protected ToPropertiesConverter propertiesConverter(Class<?> clazz) {
         return toPropertiesConverters.get(clazz);
     }

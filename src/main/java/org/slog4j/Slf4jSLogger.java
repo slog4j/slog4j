@@ -12,51 +12,31 @@ class Slf4jSLogger implements SLogger {
     private final Formatter    formatter;
 
     @Override
-    public void error(long spanId, String eventId, Object... objs) {
-        if (log.isErrorEnabled()) {
-            logError(formatter.format(Level.ERROR, spanId, eventId, objs));
-        }
-    }
-
-    @Override
-    public void error(long spanId, String eventId) {
-        if (log.isErrorEnabled()) {
-            logError(formatter.format(Level.ERROR, spanId, eventId));
-        }
-    }
-
-    @Override
-    public void error(long spanId, String eventId, Object obj) {
-        if (log.isErrorEnabled()) {
-            logError(formatter.format(Level.ERROR, spanId, eventId, obj));
-        }
-    }
-
-    @Override
-    public void error(long spanId, String eventId, String name, Object value) {
-        if (log.isErrorEnabled()) {
-            logError(formatter.format(Level.ERROR, spanId, eventId, name, value));
-        }
-    }
-
-    @Override
     public void error(String eventId, Object... objs) {
-        error(NO_SPAN_ID, eventId, objs);
+        if (log.isErrorEnabled()) {
+            logError(formatter.format(Level.ERROR, eventId, objs));
+        }
     }
 
     @Override
     public void error(String eventId) {
-        error(NO_SPAN_ID, eventId);
+        if (log.isErrorEnabled()) {
+            logError(formatter.format(Level.ERROR, eventId));
+        }
     }
 
     @Override
     public void error(String eventId, Object obj) {
-        error(NO_SPAN_ID, eventId, obj);
+        if (log.isErrorEnabled()) {
+            logError(formatter.format(Level.ERROR, eventId, obj));
+        }
     }
 
     @Override
     public void error(String eventId, String name, Object value) {
-        error(NO_SPAN_ID, eventId, name, value);
+        if (log.isErrorEnabled()) {
+            logError(formatter.format(Level.ERROR, eventId, name, value));
+        }
     }
 
     private void logError(Formatter.Result result) {
@@ -72,51 +52,31 @@ class Slf4jSLogger implements SLogger {
     }
 
     @Override
-    public void warn(long spanId, String eventId, Object... objs) {
-        if (log.isWarnEnabled()) {
-            logWarn(formatter.format(Level.WARN, spanId, eventId, objs));
-        }
-    }
-
-    @Override
-    public void warn(long spanId, String eventId) {
-        if (log.isWarnEnabled()) {
-            logWarn(formatter.format(Level.WARN, spanId, eventId));
-        }
-    }
-
-    @Override
-    public void warn(long spanId, String eventId, Object obj) {
-        if (log.isWarnEnabled()) {
-            logWarn(formatter.format(Level.WARN, spanId, eventId, obj));
-        }
-    }
-
-    @Override
-    public void warn(long spanId, String eventId, String name, Object value) {
-        if (log.isWarnEnabled()) {
-            logWarn(formatter.format(Level.WARN, spanId, eventId, name, value));
-        }
-    }
-
-    @Override
     public void warn(String eventId, Object... objs) {
-        warn(NO_SPAN_ID, eventId, objs);
+        if (log.isWarnEnabled()) {
+            logWarn(formatter.format(Level.WARN, eventId, objs));
+        }
     }
 
     @Override
     public void warn(String eventId) {
-        warn(NO_SPAN_ID, eventId);
+        if (log.isWarnEnabled()) {
+            logWarn(formatter.format(Level.WARN, eventId));
+        }
     }
 
     @Override
     public void warn(String eventId, Object obj) {
-        warn(NO_SPAN_ID, eventId, obj);
+        if (log.isWarnEnabled()) {
+            logWarn(formatter.format(Level.WARN, eventId, obj));
+        }
     }
 
     @Override
     public void warn(String eventId, String name, Object value) {
-        warn(NO_SPAN_ID, eventId, name, value);
+        if (log.isWarnEnabled()) {
+            logWarn(formatter.format(Level.WARN, eventId, name, value));
+        }
     }
 
     private void logWarn(Formatter.Result result) {
@@ -132,51 +92,31 @@ class Slf4jSLogger implements SLogger {
     }
 
     @Override
-    public void info(long spanId, String eventId, Object... objs) {
-        if (log.isInfoEnabled()) {
-            logInfo(formatter.format(Level.INFO, spanId, eventId, objs));
-        }
-    }
-
-    @Override
-    public void info(long spanId, String eventId) {
-        if (log.isInfoEnabled()) {
-            logInfo(formatter.format(Level.INFO, spanId, eventId));
-        }
-    }
-
-    @Override
-    public void info(long spanId, String eventId, Object obj) {
-        if (log.isInfoEnabled()) {
-            logInfo(formatter.format(Level.INFO, spanId, eventId, obj));
-        }
-    }
-
-    @Override
-    public void info(long spanId, String eventId, String name, Object value) {
-        if (log.isInfoEnabled()) {
-            logInfo(formatter.format(Level.INFO, spanId, eventId, name, value));
-        }
-    }
-
-    @Override
     public void info(String eventId, Object... objs) {
-        info(NO_SPAN_ID, eventId, objs);
+        if (log.isInfoEnabled()) {
+            logInfo(formatter.format(Level.INFO, eventId, objs));
+        }
     }
 
     @Override
     public void info(String eventId) {
-        info(NO_SPAN_ID, eventId);
+        if (log.isInfoEnabled()) {
+            logInfo(formatter.format(Level.INFO, eventId));
+        }
     }
 
     @Override
     public void info(String eventId, Object obj) {
-        info(NO_SPAN_ID, eventId, obj);
+        if (log.isInfoEnabled()) {
+            logInfo(formatter.format(Level.INFO, eventId, obj));
+        }
     }
 
     @Override
     public void info(String eventId, String name, Object value) {
-        info(NO_SPAN_ID, eventId, name, value);
+        if (log.isInfoEnabled()) {
+            logInfo(formatter.format(Level.INFO, eventId, name, value));
+        }
     }
 
     private void logInfo(Formatter.Result result) {
@@ -192,51 +132,31 @@ class Slf4jSLogger implements SLogger {
     }
 
     @Override
-    public void debug(long spanId, String eventId, Object... objs) {
-        if (log.isDebugEnabled()) {
-            logDebug(formatter.format(Level.DEBUG, spanId, eventId, objs));
-        }
-    }
-
-    @Override
-    public void debug(long spanId, String eventId) {
-        if (log.isDebugEnabled()) {
-            logDebug(formatter.format(Level.DEBUG, spanId, eventId));
-        }
-    }
-
-    @Override
-    public void debug(long spanId, String eventId, Object obj) {
-        if (log.isDebugEnabled()) {
-            logDebug(formatter.format(Level.DEBUG, spanId, eventId, obj));
-        }
-    }
-
-    @Override
-    public void debug(long spanId, String eventId, String name, Object value) {
-        if (log.isDebugEnabled()) {
-            logDebug(formatter.format(Level.DEBUG, spanId, eventId, name, value));
-        }
-    }
-
-    @Override
     public void debug(String eventId, Object... objs) {
-        debug(NO_SPAN_ID, eventId, objs);
+        if (log.isDebugEnabled()) {
+            logDebug(formatter.format(Level.DEBUG, eventId, objs));
+        }
     }
 
     @Override
     public void debug(String eventId) {
-        debug(NO_SPAN_ID, eventId);
+        if (log.isDebugEnabled()) {
+            logDebug(formatter.format(Level.DEBUG, eventId));
+        }
     }
 
     @Override
     public void debug(String eventId, Object obj) {
-        debug(NO_SPAN_ID, eventId, obj);
+        if (log.isDebugEnabled()) {
+            logDebug(formatter.format(Level.DEBUG, eventId, obj));
+        }
     }
 
     @Override
     public void debug(String eventId, String name, Object value) {
-        debug(NO_SPAN_ID, eventId, name, value);
+        if (log.isDebugEnabled()) {
+            logDebug(formatter.format(Level.DEBUG, eventId, name, value));
+        }
     }
 
     private void logDebug(Formatter.Result result) {
@@ -252,51 +172,31 @@ class Slf4jSLogger implements SLogger {
     }
 
     @Override
-    public void trace(long spanId, String eventId, Object... objs) {
-        if (log.isTraceEnabled()) {
-            logTrace(formatter.format(Level.TRACE, spanId, eventId, objs));
-        }
-    }
-
-    @Override
-    public void trace(long spanId, String eventId) {
-        if (log.isTraceEnabled()) {
-            logTrace(formatter.format(Level.TRACE, spanId, eventId));
-        }
-    }
-
-    @Override
-    public void trace(long spanId, String eventId, Object obj) {
-        if (log.isTraceEnabled()) {
-            logTrace(formatter.format(Level.TRACE, spanId, eventId, obj));
-        }
-    }
-
-    @Override
-    public void trace(long spanId, String eventId, String name, Object value) {
-        if (log.isTraceEnabled()) {
-            logTrace(formatter.format(Level.TRACE, spanId, eventId, name, value));
-        }
-    }
-
-    @Override
     public void trace(String eventId, Object... objs) {
-        trace(NO_SPAN_ID, eventId, objs);
+        if (log.isTraceEnabled()) {
+            logTrace(formatter.format(Level.TRACE, eventId, objs));
+        }
     }
 
     @Override
     public void trace(String eventId) {
-        trace(NO_SPAN_ID, eventId);
+        if (log.isTraceEnabled()) {
+            logTrace(formatter.format(Level.TRACE, eventId));
+        }
     }
 
     @Override
     public void trace(String eventId, Object obj) {
-        trace(NO_SPAN_ID, eventId, obj);
+        if (log.isTraceEnabled()) {
+            logTrace(formatter.format(Level.TRACE, eventId, obj));
+        }
     }
 
     @Override
     public void trace(String eventId, String name, Object value) {
-        trace(NO_SPAN_ID, eventId, name, value);
+        if (log.isTraceEnabled()) {
+            logTrace(formatter.format(Level.TRACE, eventId, name, value));
+        }
     }
 
     private void logTrace(Formatter.Result result) {
