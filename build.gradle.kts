@@ -40,7 +40,7 @@ dependencies {
     api("org.slf4j:slf4j-api:1.7.36")
     api("org.joda:joda-convert:2.2.3")
 
-    implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("org.apache.commons:commons-lang3:3.13.0")
     implementation("org.yaml:snakeyaml:2.0")
 
     testImplementation("org.spockframework:spock-core:2.3-groovy-4.0")
