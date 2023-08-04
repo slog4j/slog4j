@@ -41,7 +41,7 @@ dependencies {
     api("org.joda:joda-convert:2.2.3")
 
     implementation("org.apache.commons:commons-lang3:3.12.0")
-    implementation("org.yaml:snakeyaml:2.0")
+    implementation("org.yaml:snakeyaml:2.1")
 
     testImplementation("org.spockframework:spock-core:2.3-groovy-4.0")
 
