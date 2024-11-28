@@ -11,7 +11,7 @@ plugins {
 
     id("com.adarshr.test-logger") version "3.2.0"
     id("com.github.ksoichiro.console.reporter") version "0.6.3"
-    id("com.github.nbaztec.coveralls-jacoco") version "1.2.15"
+    id("com.github.nbaztec.coveralls-jacoco") version "1.2.16"
     id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
 }
 
