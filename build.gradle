@@ -6,11 +6,11 @@ plugins {
     id 'maven-publish'
 
     // Versioning Plugins
-    id 'nebula.release' version '6.0.2'
+    id 'com.netflix.nebula.release' version '20.2.0'
 
     id 'com.adarshr.test-logger' version '1.1.2'
-    id 'com.github.kt3k.coveralls' version '2.8.1'
     id 'com.jfrog.bintray' version '1.8.0'
+    id 'com.github.kt3k.coveralls' version '2.12.2'
 }
 
 group = 'org.slog4j'
@@ -20,10 +20,14 @@ sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
+    annotationProcessor(
+        [group: 'org.projectlombok', name: 'lombok', version: '1.16.18'],
+    )
+
     compileOnly(
         [group: 'org.projectlombok', name: 'lombok', version: '1.16.18'],
     )
@@ -39,11 +43,11 @@ dependencies {
         [group: 'org.yaml', name: 'snakeyaml', version: '1.19'],
     )
 
-    testCompile(
+    testImplementation(
         [group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4'],
     )
 
-    testRuntime(
+    testRuntimeOnly(
         [group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.11'],
     )
 }
@@ -54,18 +58,18 @@ testlogger {
 
 jacocoTestReport {
     reports {
-        xml.enabled = true
-        html.enabled = true
+        xml.required = true
+        html.required = true
     }
 }
 
 task sourcesJar(type: Jar) {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
 task javadocJar(type: Jar) {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
     from javadoc.destinationDir
 }
 
