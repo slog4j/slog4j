@@ -9,7 +9,6 @@ plugins {
     id 'com.netflix.nebula.release' version '20.2.0'
 
     id 'com.adarshr.test-logger' version '1.1.2'
-    id 'com.jfrog.bintray' version '1.8.0'
     id 'com.github.kt3k.coveralls' version '2.12.2'
 }
 
@@ -118,28 +117,3 @@ publishing {
         }
     }
 }
-
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_API_KEY')
-    publications = ['slog4j']
-    pkg {
-        repo = 'maven'
-        name = 'slog4j'
-        userOrg = user
-        desc = 'Structured Event Logging for Java'
-        licenses = ['MIT']
-        vcsUrl = 'https://github.com/eliezio/slog4j.git'
-        publicDownloadNumbers = true
-        githubRepo = 'eliezio/slog4j'
-        githubReleaseNotesFile = 'README.adoc'
-        version {
-            name = project.version
-            vcsTag = "v$project.version"
-        }
-    }
-}
-
-// Remove automatic dependency set by nebula-release when it detects org.jfrog.bintray plugin
-// see https://github.com/nebula-plugins/nebula-release-plugin/blob/master/src/main/groovy/nebula/plugin/release/ReleasePlugin.groovy#L250
-postRelease.dependsOn = postRelease.taskDependencies.values - bintrayUpload
